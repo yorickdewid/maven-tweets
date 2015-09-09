@@ -6,12 +6,8 @@
 package com.hhscyber.nl.tweets.concattweets;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.StringTokenizer;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -30,7 +26,7 @@ public class ConcatTweetsMapper extends Mapper<LongWritable, Text, Text, BytesWr
         Text timestamp = new Text(this.getTimestampFromPath(filePathString));
 
         String line = val.toString();
-        StringTokenizer itr = new StringTokenizer(line.toLowerCase());
+        StringTokenizer itr = new StringTokenizer(line);
         while(itr.hasMoreTokens()) {
             // use timestamp as key
             context.write(timestamp, new BytesWritable(itr.nextToken().getBytes()));

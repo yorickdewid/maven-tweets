@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.ByteWritable;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
@@ -34,7 +33,7 @@ public class ConcatTweetsReducer extends Reducer<Text, BytesWritable, Text, IntW
 
     public void writeToFile(String line, String pathName) {
         try {
-            Path pt = new Path("hdfs:output2/" + pathName);
+            Path pt = new Path(pathName+".json");
             FileSystem fs = FileSystem.get(new Configuration());
             if (fs.exists(pt)) {
                 BufferedWriter br = new BufferedWriter(new OutputStreamWriter(fs.append(pt)));
