@@ -31,7 +31,7 @@ public class ConcatTweets {
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(IntWritable.class);
         client.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.addInputPath(client, new Path("input_concat"));//
+        TextInputFormat.addInputPath(client, new Path("input/1441737001"));//test one folder
         TextOutputFormat.setOutputPath(client, new Path("output2"));
         
         client.setMapperClass(ConcatTweetsMapper.class);
