@@ -27,13 +27,18 @@ public class ConcatTweetsReducer extends Reducer<Text, BytesWritable, Text, IntW
         //context.write(key, new IntWritable(sum));
         for(BytesWritable a : values)
         {
-            this.writeToFile(a.toString(),key.toString());
+            this.writeToFile(new String(a.getBytes()),key.toString());
         }
     }
 
     public void writeToFile(String line, String pathName) {
         try {
-            Path pt = new Path(pathName+".json");
+            Path pt = null;
+            if(pathName.length() == 0 || pathName == null){
+                pt = new Path(1441737001+".json");
+            }else{
+                pt = new Path(pathName+".json");
+            }
             FileSystem fs = FileSystem.get(new Configuration());
             if (fs.exists(pt)) {
                 BufferedWriter br = new BufferedWriter(new OutputStreamWriter(fs.append(pt)));

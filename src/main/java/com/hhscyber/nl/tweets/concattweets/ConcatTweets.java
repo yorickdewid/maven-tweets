@@ -8,7 +8,7 @@ package com.hhscyber.nl.tweets.concattweets;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -29,7 +29,7 @@ public class ConcatTweets {
         Job client = new Job(new Configuration());
         client.setJarByClass(ConcatTweets.class);
         client.setOutputKeyClass(Text.class);
-        client.setOutputValueClass(IntWritable.class);
+        client.setOutputValueClass(BytesWritable.class);
         client.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(client, new Path("input/1441737001"));//test one folder
         TextOutputFormat.setOutputPath(client, new Path("output3"));
@@ -41,6 +41,7 @@ public class ConcatTweets {
         try {
             client.submit();
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
+             e.printStackTrace();
         }
         
     }
