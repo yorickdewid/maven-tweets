@@ -14,7 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.*;
+import net.minidev.json.*;
 
 /**
  *
@@ -22,10 +22,10 @@ import org.json.*;
  */
 public class JsonParse {
 
-    private ArrayList<JsonTweet> tweets;
+    private final ArrayList<JsonTweet> tweets;
 
     public JsonParse() {
-        this.tweets = new ArrayList<JsonTweet>();
+        this.tweets = new ArrayList<>();
     }
 
     public String getTimestampFromPath(String path) {
@@ -40,10 +40,10 @@ public class JsonParse {
     }
 
     private boolean isFileValid(String filename) {
-        String ext = filename.split("\\.")[1];
-        if (ext == null) {
+        String[] ext = filename.split("\\.");
+        if (ext.length != 2) {
             return false;
-        } else if ("json".equals(ext)) {
+        } else if ("json".equals(ext[1])) {
             return true;
         }
         return false;
@@ -73,14 +73,12 @@ public class JsonParse {
                     }
                     this.parseJSON(text);
                 } catch (IOException e) {
-                    e.printStackTrace();
                 } finally {
                     try {
                         if (fis != null) {
                             fis.close();
                         }
                     } catch (IOException ex) {
-                        ex.printStackTrace();
                     }
                 }
 
@@ -96,18 +94,17 @@ public class JsonParse {
         File[] files = new File(path).listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
-                PrintWriter writer = null;
+                PrintWriter writer;
                 try {
                     System.out.println("Directory: " + file.getName());
-                    boolean check = new File(path+file.getName(), "_DONE").exists();
-                    if (check)
+                    boolean check = new File(path + file.getName(), "_DONE").exists();
+                    if (check) {
                         continue;
+                    }
                     this.openDir(file.listFiles());
-                    writer = new PrintWriter(path+file.getName()+"/_DONE", "UTF-8");
+                    writer = new PrintWriter(path + file.getName() + "/_DONE", "UTF-8");
                     writer.close();
-                } catch (FileNotFoundException ex) {
-                    Logger.getLogger(JsonParse.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (UnsupportedEncodingException ex) {
+                } catch (FileNotFoundException | UnsupportedEncodingException ex) {
                     Logger.getLogger(JsonParse.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
@@ -116,31 +113,38 @@ public class JsonParse {
     }
 
     public void parseJSON(String singleLine) {
-        JSONObject json = new JSONObject(singleLine);
-        if (!json.has("statuses")) {
+        JSONObject json = (JSONObject) JSONValue.parse(singleLine);
+        JSONArray jry = (JSONArray) json.get("statuses");
+        if (jry == null) {
             return;
         }
-        JSONArray jry = json.getJSONArray("statuses");
-        for (int i = 0; i < jry.length(); i++) {
-            JSONObject obj, pobj;
-            obj = (JSONObject) jry.get(i);
-            pobj = (JSONObject) obj.get("user");
 
+        for (Object jry1 : jry) {
+            JSONObject obj, pobj;
+            obj = (JSONObject) jry1;
+            pobj = (JSONObject) obj.get("user");
             JsonTweet jt = new JsonTweet(obj.get("id_str").toString(), pobj.get("id_str").toString());
             jt.setText(obj.get("text").toString());
             jt.setRetweetCount(obj.get("retweet_count").toString());
             jt.setFavoriteCount(obj.get("favorite_count").toString());
-            jt.setContributors(obj.get("contributors").toString());
+            if (obj.get("contributors") != null) {
+                jt.setContributors(obj.get("contributors").toString());
+            }
             jt.setLang(obj.get("lang").toString());
-            jt.setGeo(obj.get("geo").toString());
+            if (obj.get("geo") != null) {
+                jt.setGeo(obj.get("geo").toString());
+            }
             jt.setSource(obj.get("source").toString());
             jt.setCreatedAt(obj.get("created_at").toString());
-            jt.setPlace(obj.get("place").toString());
+            if (obj.get("place") != null) {
+                jt.setPlace(obj.get("place").toString());
+            }
             jt.setRetweeted(obj.get("retweeted").toString());
             jt.setTruncated(obj.get("truncated").toString());
             jt.setFavorited(obj.get("favorited").toString());
-            jt.setCoordinates(obj.get("coordinates").toString());
-
+            if (obj.get("coordinates") != null) {
+                jt.setCoordinates(obj.get("coordinates").toString());
+            }
             JsonTweetUser jtu = jt.getUser();
             jtu.setLocation(pobj.get("location").toString());
             jtu.setDefaultProfile(pobj.get("default_profile").toString());
@@ -158,19 +162,28 @@ public class JsonParse {
             jtu.setTranslationEnabled(pobj.get("is_translation_enabled").toString());
             jtu.setDefaultProfileImg(pobj.get("default_profile_image").toString());
             jtu.setFollowerCount(pobj.get("followers_count").toString());
-            jtu.setExtendedProfile(pobj.get("has_extended_profile").toString());
+            if (pobj.get("has_extended_profile") != null) {
+                jtu.setExtendedProfile(pobj.get("has_extended_profile").toString());
+            }
             jtu.setProfileImg(pobj.get("profile_image_url_https").toString());
             jtu.setGeoEnabled(pobj.get("geo_enabled").toString());
             jtu.setProfileBackgroundImg(pobj.get("profile_background_image_url_https").toString());
-            jtu.setUrl(pobj.get("url").toString());
-            jtu.setUtcOffset(pobj.get("utc_offset").toString());
-            jtu.setTimeZone(pobj.get("time_zone").toString());
-            jtu.setNotifications(pobj.get("notifications").toString());
+            if (pobj.get("url") != null) {
+                jtu.setUrl(pobj.get("url").toString());
+            }
+            if (pobj.get("utc_offset") != null) {
+                jtu.setUtcOffset(pobj.get("utc_offset").toString());
+            }
+            if (pobj.get("time_zone") != null) {
+                jtu.setTimeZone(pobj.get("time_zone").toString());
+            }
+            if (pobj.get("notifications") != null) {
+                jtu.setNotifications(pobj.get("notifications").toString());
+            }
             jtu.setFiendCount(pobj.get("friends_count").toString());
             jtu.setScreenName(pobj.get("screen_name").toString());
             jtu.setListedCount(pobj.get("listed_count").toString());
             jtu.setIsTranslator(pobj.get("is_translator").toString());
-
             tweets.add(jt);
         }
     }

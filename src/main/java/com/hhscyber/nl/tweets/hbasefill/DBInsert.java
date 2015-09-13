@@ -7,12 +7,14 @@ package com.hhscyber.nl.tweets.hbasefill;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 
 /**
@@ -47,6 +49,7 @@ public class DBInsert {
     
     public void doFlush() {
         int i = 0;
+        List<Row> batch = new ArrayList<>();
 
         if (twar.isEmpty()) {
             return;
@@ -71,14 +74,19 @@ public class DBInsert {
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("is_translation_enabled"), Bytes.toBytes(tw.getUser().getIs_translation_enabled()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("default_profile_image"), Bytes.toBytes(tw.getUser().getDefault_profile_image()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("followers_count"), Bytes.toBytes(tw.getUser().getFollowers_count()));
-            p.add(Bytes.toBytes("profile"), Bytes.toBytes("has_extended_profile"), Bytes.toBytes(tw.getUser().getHas_extended_profile()));
+            if (tw.getUser().getHas_extended_profile() != null)
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("has_extended_profile"), Bytes.toBytes(tw.getUser().getHas_extended_profile()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("profile_image_url_https"), Bytes.toBytes(tw.getUser().getProfile_image_url_https()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("geo_enabled"), Bytes.toBytes(tw.getUser().getGeo_enabled()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("profile_background_image_url_https"), Bytes.toBytes(tw.getUser().getProfile_background_image_url_https()));
-            p.add(Bytes.toBytes("profile"), Bytes.toBytes("url"), Bytes.toBytes(tw.getUser().getUrl()));
-            p.add(Bytes.toBytes("profile"), Bytes.toBytes("utc_offset"), Bytes.toBytes(tw.getUser().getUtc_offset()));
-            p.add(Bytes.toBytes("profile"), Bytes.toBytes("time_zone"), Bytes.toBytes(tw.getUser().getTime_zone()));
-            p.add(Bytes.toBytes("profile"), Bytes.toBytes("notifications"), Bytes.toBytes(tw.getUser().getNotifications()));
+            if (tw.getUser().getUrl() != null)
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("url"), Bytes.toBytes(tw.getUser().getUrl()));
+            if (tw.getUser().getUtc_offset() != null)
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("utc_offset"), Bytes.toBytes(tw.getUser().getUtc_offset()));
+            if (tw.getUser().getTime_zone() != null)
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("time_zone"), Bytes.toBytes(tw.getUser().getTime_zone()));
+            if (tw.getUser().getNotifications() != null)
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("notifications"), Bytes.toBytes(tw.getUser().getNotifications()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("friends_count"), Bytes.toBytes(tw.getUser().getFriends_count()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("screen_name"), Bytes.toBytes(tw.getUser().getScreen_name()));
             p.add(Bytes.toBytes("profile"), Bytes.toBytes("listed_count"), Bytes.toBytes(tw.getUser().getListed_count()));
@@ -87,23 +95,28 @@ public class DBInsert {
             p.add(Bytes.toBytes("content"), Bytes.toBytes("text"), Bytes.toBytes(tw.getText()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("favorite_count"), Bytes.toBytes(tw.getFavoriteCount()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("retweet_count"), Bytes.toBytes(tw.getRetweetCount()));
-            p.add(Bytes.toBytes("content"), Bytes.toBytes("contributors"), Bytes.toBytes(tw.getContributors()));
-            p.add(Bytes.toBytes("content"), Bytes.toBytes("coordinated"), Bytes.toBytes(tw.getCoordinates()));
+            if (tw.getContributors() != null)
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("contributors"), Bytes.toBytes(tw.getContributors()));
+            if (tw.getCoordinates() != null)
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("coordinated"), Bytes.toBytes(tw.getCoordinates()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("created_at"), Bytes.toBytes(tw.getCreatedAt()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("favorited"), Bytes.toBytes(tw.getFavorited()));
-            p.add(Bytes.toBytes("content"), Bytes.toBytes("geo"), Bytes.toBytes(tw.getGeo()));
+            if (tw.getGeo() != null)
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("geo"), Bytes.toBytes(tw.getGeo()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("truncated"), Bytes.toBytes(tw.getTruncated()));
-            p.add(Bytes.toBytes("content"), Bytes.toBytes("place"), Bytes.toBytes(tw.getPlace()));
+            if (tw.getPlace() != null)
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("place"), Bytes.toBytes(tw.getPlace()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("source"), Bytes.toBytes(tw.getSource()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("lang"), Bytes.toBytes(tw.getLang()));
             p.add(Bytes.toBytes("content"), Bytes.toBytes("retweeted"), Bytes.toBytes(tw.getRetweeted()));
 
-            try {
-                hTable.put(p);
-                i++;
-            } catch (IOException ex) {
-                Logger.getLogger(DBInsert.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            batch.add(p);
+            i++;
+        }
+        try {
+            hTable.batch(batch);
+        } catch (InterruptedException | IOException ex) {
+            Logger.getLogger(DBInsert.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println(i+" tweets flushed to database");
     }
