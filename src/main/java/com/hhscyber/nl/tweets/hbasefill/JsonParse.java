@@ -27,18 +27,7 @@ public class JsonParse {
     public JsonParse() {
         this.tweets = new ArrayList<>();
     }
-
-    public String getTimestampFromPath(String path) {
-        String timestamp = null;
-        String[] tmp = path.split("/");
-        for (String tm : tmp) {
-            if (tm.matches("[0-9]*")) {
-                System.out.println(tm);
-            }
-        }
-        return timestamp;
-    }
-
+    
     private boolean isFileValid(String filename) {
         String[] ext = filename.split("\\.");
         if (ext.length != 2) {
@@ -110,6 +99,24 @@ public class JsonParse {
             }
         }
         this.openDir(files);
+    }
+    
+    public void openFileTest(String path){
+        File file = new File(path);
+           if (file.isDirectory()) {
+                PrintWriter writer;
+                try {
+                    System.out.println("Directory: " + file.getName());
+                    boolean check = new File(path + file.getName(), "_DONE").exists();
+                    if(check){
+                    this.openDir(file.listFiles());
+                    writer = new PrintWriter(path + file.getName() + "/_DONE", "UTF-8");
+                    writer.close();
+                    }
+                } catch (FileNotFoundException | UnsupportedEncodingException ex) {
+                    Logger.getLogger(JsonParse.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
     }
 
     public void parseJSON(String singleLine) {
