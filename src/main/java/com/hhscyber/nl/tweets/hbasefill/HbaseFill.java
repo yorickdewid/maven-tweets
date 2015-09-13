@@ -6,13 +6,10 @@
 package com.hhscyber.nl.tweets.hbasefill;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -35,7 +32,7 @@ public class HbaseFill {
         Job client = new Job(new Configuration());
         client.setJarByClass(HbaseFill.class);
         client.setOutputKeyClass(Text.class);
-        client.setOutputValueClass(BytesWritable.class);
+        client.setOutputValueClass(IntWritable.class);
         client.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(client, new Path("input/" + test));//test one folder
         TextOutputFormat.setOutputPath(client, new Path("output3"));

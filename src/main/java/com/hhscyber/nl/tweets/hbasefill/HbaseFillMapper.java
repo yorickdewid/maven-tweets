@@ -6,7 +6,8 @@
 package com.hhscyber.nl.tweets.hbasefill;
 
 import java.io.IOException;
-import org.apache.hadoop.io.BytesWritable;
+import java.util.StringTokenizer;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -16,16 +17,17 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
  *
  * @author eve
  */
-public class HbaseFillMapper extends Mapper<LongWritable, Text, Text, BytesWritable> {
-    
+   public class HbaseFillMapper extends Mapper<LongWritable, Text, Text, IntWritable> {
+    private final IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
     @Override
     public void map(LongWritable key, Text val,Context context) throws IOException, InterruptedException {
-        this.parseJson();
+        String line = val.toString();
+        StringTokenizer itr = new StringTokenizer(line);
+        while(itr.hasMoreTokens()) {
+            new JsonParse().openFileTest(itr.nextToken());        
+        }
+        
     }
-    
-    private void parseJson(){
-        JsonParse jp = new JsonParse();
-        jp.openFileTest("input/"+HbaseFill.test);
-    }
-    
 }

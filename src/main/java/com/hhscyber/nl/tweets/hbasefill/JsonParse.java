@@ -27,7 +27,7 @@ public class JsonParse {
     public JsonParse() {
         this.tweets = new ArrayList<>();
     }
-    
+
     private boolean isFileValid(String filename) {
         String[] ext = filename.split("\\.");
         if (ext.length != 2) {
@@ -100,23 +100,14 @@ public class JsonParse {
         }
         this.openDir(files);
     }
-    
-    public void openFileTest(String path){
-        File file = new File(path);
-           if (file.isDirectory()) {
-                PrintWriter writer;
-                try {
-                    System.out.println("Directory: " + file.getName());
-                    boolean check = new File(path + file.getName(), "_DONE").exists();
-                    if(check){
-                    this.openDir(file.listFiles());
-                    writer = new PrintWriter(path + file.getName() + "/_DONE", "UTF-8");
-                    writer.close();
-                    }
-                } catch (FileNotFoundException | UnsupportedEncodingException ex) {
-                    Logger.getLogger(JsonParse.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
+
+    public void openFileTest(String buffer) {
+        DBInsert db = new DBInsert("hhscyber:tweets_test");
+        this.parseJSON(buffer);
+        db.setDataArray(tweets);
+        db.doFlush();
+        db.close();
+        tweets.clear();
     }
 
     public void parseJSON(String singleLine) {
