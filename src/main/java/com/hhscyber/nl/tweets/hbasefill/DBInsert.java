@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
@@ -27,7 +26,7 @@ public class DBInsert {
     private ArrayList<JsonTweet> twar;
     
     public DBInsert(String table) {
-        this.config = HBaseConfiguration.create();
+        this.config = HbaseFill.conHbase;
         try {
             this.hTable = new HTable(config, table);
         } catch (IOException ex) {

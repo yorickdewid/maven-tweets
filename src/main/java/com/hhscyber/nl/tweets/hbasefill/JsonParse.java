@@ -39,7 +39,7 @@ public class JsonParse {
     }
 
     public void openDir(File[] files) {
-        DBInsert db = new DBInsert("hhscyber:tweets");
+        DBInsert db = new DBInsert("hhscyber:tweets_test");
         for (File file : files) {
             if (file.isDirectory()) {
                 System.out.println("Directory: " + file.getName());
