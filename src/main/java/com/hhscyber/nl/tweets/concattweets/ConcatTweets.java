@@ -27,6 +27,7 @@ public class ConcatTweets {
     public static void main(String[] args) throws IOException {
 
         Job client = new Job(new Configuration());
+        client.setSpeculativeExecution(false);
         client.setJarByClass(ConcatTweets.class);
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(Text.class);
