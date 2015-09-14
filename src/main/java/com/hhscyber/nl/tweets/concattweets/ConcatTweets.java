@@ -29,7 +29,7 @@ public class ConcatTweets {
         Job client = new Job(new Configuration());
         client.setJarByClass(ConcatTweets.class);
         client.setOutputKeyClass(Text.class);
-        client.setOutputValueClass(BytesWritable.class);
+        client.setOutputValueClass(Text.class);
         client.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(client, new Path("input/1441737001"));//test one folder
         TextOutputFormat.setOutputPath(client, new Path("output3"));

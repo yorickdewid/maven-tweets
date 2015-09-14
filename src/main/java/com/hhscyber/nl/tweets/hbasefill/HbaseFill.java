@@ -29,7 +29,7 @@ public class HbaseFill {
      */
     public static void main(String[] args) throws IOException {
         conHbase = HBaseConfiguration.create();
-        Job client = new Job(new Configuration());
+        Job client = new Job(conHbase); // new configuration
         client.setJarByClass(HbaseFill.class);
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(IntWritable.class);

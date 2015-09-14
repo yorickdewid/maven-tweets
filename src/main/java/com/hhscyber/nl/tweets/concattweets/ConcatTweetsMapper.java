@@ -18,31 +18,24 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  *
  * @author eve
  */
-public class ConcatTweetsMapper extends Mapper<LongWritable, Text, Text, BytesWritable> {
+public class ConcatTweetsMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     @Override
     public void map(LongWritable key, Text val,Context context) throws IOException, InterruptedException {
         String filePathString = ((FileSplit) context.getInputSplit()).getPath().toString();
         Text timestamp = new Text(this.getTimestampFromPath(filePathString));
-
-        String line = val.toString();
-        StringTokenizer itr = new StringTokenizer(line);
-        while(itr.hasMoreTokens()) {
+        System.out.println("Filepath: "+filePathString+" "+timestamp);
             // use timestamp as key
-            context.write(timestamp, new BytesWritable(itr.nextToken().getBytes()));
-        }        
+            context.write(timestamp, val);
     }
     
     public String getTimestampFromPath(String path){
-        String timestamp = null;
         String[] tmp = path.split("/");
-        for(String tm : tmp)
-        {
-            if(tm .matches("[0-9]*")){
-              timestamp = tm;
-              break;
-            }
+        if(tmp[5] != null){
+        return tmp[6];
         }
-        return timestamp;
+        else{
+            return null;
+        }
     }
 }

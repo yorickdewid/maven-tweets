@@ -24,10 +24,6 @@ import org.apache.hadoop.mapreduce.Mapper.Context;
     @Override
     public void map(LongWritable key, Text val,Context context) throws IOException, InterruptedException {
         String line = val.toString();
-        StringTokenizer itr = new StringTokenizer(line);
-        while(itr.hasMoreTokens()) {
-            new JsonParse().openFileTest(itr.nextToken());        
-        }
-        
+        new JsonParse().openFileTest(line);        
     }
 }
