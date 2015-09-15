@@ -12,12 +12,13 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.ToolRunner;
 
 /**
  *
  * @author eve
  */
-public class Hbase2 {
+public class Hbase2 extends ToolRunner{
 
     /**
      * @param args the command line arguments
@@ -25,7 +26,7 @@ public class Hbase2 {
      */
     public static void main(String[] args) throws IOException {
 
-        Job client = new Job(new Configuration());
+        Job client = new Job(new Configuration(),"hbasetest");
         client.setSpeculativeExecution(false);
         client.setJarByClass(Hbase2.class);
         client.setOutputKeyClass(Text.class);
