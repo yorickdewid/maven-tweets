@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -23,20 +24,61 @@ import org.apache.hadoop.mapreduce.Reducer;
  * @author eve
  */
 public class ConcatTweetsReducer extends Reducer<Text, Text, Text, IntWritable> {
-    private static BufferedWriter br= null;
+
+    private static BufferedWriter br = null;
+    private FileSystem hdfs;
+    private Path newFolderPath;
+    private Path newFilePath;
+    private StringBuilder sb;
+
+    @Override
+    protected void setup(Context context) throws IOException, InterruptedException {
+
+        hdfs = FileSystem.get(new Configuration());
+        Path homeDir = hdfs.getHomeDirectory();
+        Path workingDir = hdfs.getWorkingDirectory();
+
+        System.out.println("Home folder -" + homeDir);
+        System.out.println("Work folder -" + workingDir);
+
+        newFolderPath = new Path("/MyDataFolder");
+        newFolderPath = Path.mergePaths(workingDir, newFolderPath);
+
+        hdfs.mkdirs(newFolderPath);
+
+        newFilePath = new Path(newFolderPath + "/newFile.txt");
+        hdfs.createNewFile(newFilePath);
+
+        sb = new StringBuilder();
+    }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
+
         try {
-            br = this.getFile(key.toString());
-            System.out.println("Size: "+ Iterables.size(values));
+            //br = this.getFile(key.toString());
+            //System.out.println("Size: " + Iterables.size(values));
+
             for (Text value : values) {
-                this.writeToFile(br, value.toString(), key.toString());
+                //this.writeToFile(br, value.toString(), key.toString());
+                //this.writeFile(value.toString());
+                sb.append(value.toString());
+                sb.append("\n");
             }
-            br.close();
+            //br.close();
         } catch (Exception ex) {
             Logger.getLogger(ConcatTweetsReducer.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+        byte[] byt = sb.toString().getBytes();
+
+        FSDataOutputStream fsOutStream = hdfs.create(newFilePath);
+
+        fsOutStream.write(byt);
+        fsOutStream.close();
     }
 
     public BufferedWriter getFile(String pathName) throws Exception {
@@ -49,14 +91,6 @@ public class ConcatTweetsReducer extends Reducer<Text, Text, Text, IntWritable> 
             Logger.getLogger(ConcatTweetsReducer.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
-    }
-
-    public void writeToFile(BufferedWriter br, String line, String pathName) {
-        try {
-            br.write(line);
-        } catch (Exception e) {
-            System.out.println("File not found");
-        }
     }
 
     private Path getPath(String pathName) {
