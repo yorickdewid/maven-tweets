@@ -45,8 +45,9 @@ public class Hbase2 implements Tool{
         client.setCombinerClass(Hbase2Reducer.class);
         
         try {
-            client.submit();
+            client.waitForCompletion(true);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
+            System.out.println(e);
         }
         return 0;
     }
