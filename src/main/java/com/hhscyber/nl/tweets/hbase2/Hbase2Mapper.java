@@ -16,12 +16,17 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
  * @author eve
  */
 public class Hbase2Mapper extends Mapper<LongWritable, Text, Text, Text> {
-
+    Text timestamp;
+    
     @Override
-    public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
+    public void setup(Context context) {
         String filePathString = ((FileSplit) context.getInputSplit()).getPath().toString();
         Text timestamp = new Text(this.getTimestampFromPath(filePathString));
         System.out.println("Filepath: " + filePathString + " " + timestamp);
+    }
+    
+    @Override
+    public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
         // use timestamp as key
         context.write(timestamp, val);
     }
