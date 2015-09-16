@@ -21,7 +21,7 @@ public class Hbase2Mapper extends Mapper<LongWritable, Text, Text, Text> {
     @Override
     public void setup(Context context) {
         String filePathString = ((FileSplit) context.getInputSplit()).getPath().toString();
-        Text timestamp = new Text(this.getTimestampFromPath(filePathString));
+        timestamp = new Text(this.getTimestampFromPath(filePathString));
         System.out.println("Filepath: " + filePathString + " " + timestamp);
     }
     
