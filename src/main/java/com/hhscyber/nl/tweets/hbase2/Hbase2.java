@@ -33,6 +33,7 @@ public class Hbase2 implements Tool{
     public int run(String[] args) throws Exception {
         Job client = new Job(getConf(),"hbasetest");
         client.setSpeculativeExecution(false);
+        client.setMaxMapAttempts(1);
         client.setJarByClass(Hbase2.class);
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(Text.class);
