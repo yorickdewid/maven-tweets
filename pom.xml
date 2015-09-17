@@ -113,7 +113,8 @@
         <dependency>
             <groupId>io.github.htools</groupId>
             <artifactId>htools</artifactId>
-            <version>0.26-SNAPSHOT</version>
+            <version>0.27-SNAPSHOT</version>
+            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

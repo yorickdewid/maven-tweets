@@ -5,20 +5,17 @@
  */
 package com.hhscyber.nl.tweets.hbase2;
 
-import com.google.common.collect.Iterables;
 import com.hhscyber.nl.tweets.concattweets.ConcatTweetsReducer;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.client.HConnection;
+import org.apache.hadoop.hbase.client.HConnectionManager;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -29,22 +26,30 @@ import org.apache.hadoop.mapreduce.Reducer;
  */
 public class Hbase2Reducer extends Reducer<Text, Text, Text, IntWritable> {
 
-    private final ArrayList<JsonTweet> tweets;
+    private ArrayList<JsonTweet> tweets;
+    private HConnection connection;
 
-    public Hbase2Reducer() {
+    public void setup(Context context) throws IOException {
         this.tweets = new ArrayList<>();
-    }
+        connection = HConnectionManager.createConnection(context.getConfiguration());
+     }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
         try {
-            DBInsert db = new DBInsert("hhscyber:tweets_test");
             for (Text value : values) {
-                this.parseJSON(value.toString());
+                parseJSON(value.toString());
             }
-            db.setDataArray(tweets);
-            db.doFlush();
-            db.close();
+            HTableInterface table = connection.getTable("hhscyber:tweets_test");
+            //iets met table.put ???
+            byte[] tableName = table.getTableName();
+            System.out.println("tablename " + new String(tableName));
+            
+            
+            //DBInsert db = new DBInsert("hhscyber:tweets_test");
+            //db.setDataArray(tweets);
+            //db.doFlush();
+            //db.close();
             tweets.clear();
         } catch (Exception ex) {
             Logger.getLogger(ConcatTweetsReducer.class.getName()).log(Level.SEVERE, null, ex);

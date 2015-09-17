@@ -30,7 +30,7 @@ public class Hbase3 {
         Job job = new Job(conf, "hbasetest");
         job.setMapSpeculativeExecution(true);
         job.setReduceSpeculativeExecution(false);
-        job.setMaxMapAttempts(4);
+        job.setMaxMapAttempts(1);
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
         job.setInputFormatClass(TextInputFormat.class);
@@ -43,7 +43,7 @@ public class Hbase3 {
         
         job.setMapperClass(Hbase2Mapper.class);
         job.setReducerClass(Hbase2Reducer.class);
-        job.setCombinerClass(Hbase2Reducer.class);
+        //job.setCombinerClass(Hbase2Reducer.class); // fout leg ik morgen wel uit
         
         job.waitForCompletion(true);
     }
