@@ -26,6 +26,9 @@ public class ConcatTweets {
 
         Configuration conf = new Configuration();
         FileSystem hdfs = FileSystem.get(conf);
+        // valkuil: in Job constructor wordt conf gecopieerd, dus alles wat je in conf wilt
+        // zetten moet je doen voordat je de job aanmaakt, of in de conf van job.
+        conf.set("outputpath", "jsonconcat");
 
         Job client = new Job(conf);
         client.setSpeculativeExecution(false);
@@ -50,7 +53,6 @@ public class ConcatTweets {
         // TextOutputFormat.setOutputPath(client, new Path("jsonconcat"));
         client.setOutputFormatClass(NullOutputFormat.class);
         // schrijf eventuele parameters in je configuration
-        conf.set("outputpath", "jsonconcat");
 
         client.setMapperClass(ConcatTweetsMapper.class);
         client.setReducerClass(ConcatTweetsReducer.class);
