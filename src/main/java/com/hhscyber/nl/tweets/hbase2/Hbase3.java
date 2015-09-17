@@ -9,8 +9,6 @@ import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
 import io.github.htools.io.HDFSPath;
 import java.io.IOException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -43,7 +41,6 @@ public class Hbase3 {
         
         job.setMapperClass(Hbase2Mapper.class);
         job.setReducerClass(Hbase2Reducer.class);
-        //job.setCombinerClass(Hbase2Reducer.class); // fout leg ik morgen wel uit
         
         job.waitForCompletion(true);
     }

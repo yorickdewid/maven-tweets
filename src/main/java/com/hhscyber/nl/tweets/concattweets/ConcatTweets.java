@@ -7,8 +7,8 @@ package com.hhscyber.nl.tweets.concattweets;
 
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -26,25 +26,29 @@ public class ConcatTweets {
      */
     public static void main(String[] args) throws IOException {
 
-        Job client = new Job(new Configuration());
+        Configuration conf = new Configuration();
+        Job client = new Job(conf);
         client.setSpeculativeExecution(false);
         client.setJarByClass(ConcatTweets.class);
+        client.setJobName("com.hhscyber.nl.tweets.concattweets.ConcatTweets");
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(Text.class);
         client.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.addInputPath(client, new Path("input/1441737001"));//test one folder
-        TextOutputFormat.setOutputPath(client, new Path("output3"));
-        
+        TextInputFormat.addInputPath(client, new Path("input/*"));
+        TextOutputFormat.setOutputPath(client, new Path("jsonconcat"));
+
         client.setMapperClass(ConcatTweetsMapper.class);
         client.setReducerClass(ConcatTweetsReducer.class);
-        client.setCombinerClass(ConcatTweetsReducer.class);
-        
+
+        FileSystem hdfs = FileSystem.get(conf);
+        hdfs.delete(new Path("jsonconcat"), true);
+
         try {
-            client.submit();
+            client.waitForCompletion(true);
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
-             e.printStackTrace();
+            e.printStackTrace();
         }
-        
+
     }
-    
+
 }
