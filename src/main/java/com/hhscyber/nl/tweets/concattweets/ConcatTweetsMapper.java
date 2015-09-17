@@ -6,8 +6,6 @@
 package com.hhscyber.nl.tweets.concattweets;
 
 import java.io.IOException;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
@@ -21,7 +19,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 public class ConcatTweetsMapper extends Mapper<LongWritable, Text, Text, Text> {
 
     @Override
-    public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
+        public void map(LongWritable key, Text val, Context context) throws IOException, InterruptedException {
         String filePathString = ((FileSplit) context.getInputSplit()).getPath().toString();
         Text timestamp = new Text(this.getTimestampFromPath(filePathString));
         System.out.println("Timestamp " + timestamp);

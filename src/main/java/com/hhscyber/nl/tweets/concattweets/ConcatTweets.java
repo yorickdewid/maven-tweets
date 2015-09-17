@@ -31,10 +31,12 @@ public class ConcatTweets {
         client.setSpeculativeExecution(false);
         client.setJarByClass(ConcatTweets.class);
         client.setJobName("com.hhscyber.nl.tweets.concattweets.ConcatTweets");
+        //client.setMaxMapAttempts(1);
+        //client.setMaxReduceAttempts(1);
         client.setOutputKeyClass(Text.class);
         client.setOutputValueClass(Text.class);
         client.setInputFormatClass(TextInputFormat.class);
-        TextInputFormat.addInputPath(client, new Path("input/*"));
+        TextInputFormat.addInputPath(client, new Path("input/143*")); //1440* ...
         TextOutputFormat.setOutputPath(client, new Path("jsonconcat"));
 
         client.setMapperClass(ConcatTweetsMapper.class);
