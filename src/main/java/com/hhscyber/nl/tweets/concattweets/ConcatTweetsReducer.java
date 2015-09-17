@@ -34,38 +34,20 @@ public class ConcatTweetsReducer extends Reducer<Text, Text, Text, IntWritable> 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
 
-        hdfs = FileSystem.get(new Configuration());
-        Path homeDir = hdfs.getHomeDirectory();
-        Path workingDir = hdfs.getWorkingDirectory();
-
-        System.out.println("Home folder -" + homeDir);
-        System.out.println("Work folder -" + workingDir);
-
-        newFolderPath = new Path("/MyDataFolder");
-        newFolderPath = Path.mergePaths(workingDir, newFolderPath);
-
-        hdfs.mkdirs(newFolderPath);
-
-        newFilePath = new Path(newFolderPath + "/newFile.txt");
-        hdfs.createNewFile(newFilePath);
+        hdfs = FileSystem.get(context.getConfiguration());
+        newFilePath = new Path("newFile.json");
 
         sb = new StringBuilder();
     }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-
+        System.out.println("Reduce with "+key);
         try {
-            //br = this.getFile(key.toString());
-            //System.out.println("Size: " + Iterables.size(values));
-
             for (Text value : values) {
-                //this.writeToFile(br, value.toString(), key.toString());
-                //this.writeFile(value.toString());
                 sb.append(value.toString());
                 sb.append("\n");
             }
-            //br.close();
         } catch (Exception ex) {
             Logger.getLogger(ConcatTweetsReducer.class.getName()).log(Level.SEVERE, null, ex);
         }
