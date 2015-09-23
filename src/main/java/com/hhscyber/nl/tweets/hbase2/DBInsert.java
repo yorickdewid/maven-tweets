@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -22,17 +23,11 @@ import org.apache.hadoop.hbase.util.Bytes;
  * @author eve
  */
 public class DBInsert {
-    private Configuration config;
-    private HTable hTable;
+    private HTableInterface hTable;
     private ArrayList<JsonTweet> twar;
     
-    public DBInsert(String table) {
-        this.config = HBaseConfiguration.create();
-        try {
-            this.hTable = new HTable(config, table);
-        } catch (IOException ex) {
-            Logger.getLogger(DBInsert.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public DBInsert(HTableInterface hTable) {
+        this.hTable = hTable;
     }
 
     public void setDataArray(ArrayList<JsonTweet> ar) {

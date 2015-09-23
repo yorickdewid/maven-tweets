@@ -39,11 +39,10 @@ public class Hbase2 implements Tool{
         client.setOutputValueClass(Text.class);
         client.setInputFormatClass(TextInputFormat.class);
         TextInputFormat.addInputPath(client, new Path("input/1441737001"));//test one folder
-        TextOutputFormat.setOutputPath(client, new Path("output3"));
+        TextOutputFormat.setOutputPath(client, new Path("output4"));
         
         client.setMapperClass(Hbase2Mapper.class);
         client.setReducerClass(Hbase2Reducer.class);
-        client.setCombinerClass(Hbase2Reducer.class);
         
         try {
             client.waitForCompletion(true);

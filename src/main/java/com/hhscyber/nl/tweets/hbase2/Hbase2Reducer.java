@@ -13,26 +13,24 @@ import java.util.logging.Logger;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
-import org.apache.hadoop.hbase.client.HConnection;
-import org.apache.hadoop.hbase.client.HConnectionManager;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.TableReducer;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Reducer;
 
 /**
  *
  * @author eve
  */
-public class Hbase2Reducer extends Reducer<Text, Text, Text, IntWritable> {
+public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritable> {
 
     private ArrayList<JsonTweet> tweets;
-    private HConnection connection;
 
+    @Override
     public void setup(Context context) throws IOException {
         this.tweets = new ArrayList<>();
-        connection = HConnectionManager.createConnection(context.getConfiguration());
-     }
+    }
 
     @Override
     protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
@@ -40,18 +38,75 @@ public class Hbase2Reducer extends Reducer<Text, Text, Text, IntWritable> {
             for (Text value : values) {
                 parseJSON(value.toString());
             }
-            HTableInterface table = connection.getTable("hhscyber:tweets_test");
-            //iets met table.put ???
-            byte[] tableName = table.getTableName();
-            System.out.println("tablename " + new String(tableName));
-            
-            
-            //DBInsert db = new DBInsert("hhscyber:tweets_test");
-            //db.setDataArray(tweets);
-            //db.doFlush();
-            //db.close();
-            tweets.clear();
-        } catch (Exception ex) {
+
+            for (JsonTweet tw : tweets) {
+                Put p = new Put(Bytes.toBytes(tw.getId()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("id"), Bytes.toBytes(tw.getUser().getId()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("location"), Bytes.toBytes(tw.getUser().getLocation()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("default_profile"), Bytes.toBytes(tw.getUser().getDefault_profile()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("profile_backround_tile"), Bytes.toBytes(tw.getUser().getProfile_background_tile()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("statuses_count"), Bytes.toBytes(tw.getUser().getStatuses_count()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("lang"), Bytes.toBytes(tw.getUser().getLang()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("following"), Bytes.toBytes(tw.getUser().getFollowing()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("protected"), Bytes.toBytes(tw.getUser().getProtected()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("favorites_count"), Bytes.toBytes(tw.getUser().getFavourites_count()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("description"), Bytes.toBytes(tw.getUser().getDescription()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("verified"), Bytes.toBytes(tw.getUser().getVerified()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("contributors_enabled"), Bytes.toBytes(tw.getUser().getContributors_enabled()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("name"), Bytes.toBytes(tw.getUser().getName()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("created_at"), Bytes.toBytes(tw.getUser().getCreated_at()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("is_translation_enabled"), Bytes.toBytes(tw.getUser().getIs_translation_enabled()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("default_profile_image"), Bytes.toBytes(tw.getUser().getDefault_profile_image()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("followers_count"), Bytes.toBytes(tw.getUser().getFollowers_count()));
+                if (tw.getUser().getHas_extended_profile() != null) {
+                    p.add(Bytes.toBytes("profile"), Bytes.toBytes("has_extended_profile"), Bytes.toBytes(tw.getUser().getHas_extended_profile()));
+                }
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("profile_image_url_https"), Bytes.toBytes(tw.getUser().getProfile_image_url_https()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("geo_enabled"), Bytes.toBytes(tw.getUser().getGeo_enabled()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("profile_background_image_url_https"), Bytes.toBytes(tw.getUser().getProfile_background_image_url_https()));
+                if (tw.getUser().getUrl() != null) {
+                    p.add(Bytes.toBytes("profile"), Bytes.toBytes("url"), Bytes.toBytes(tw.getUser().getUrl()));
+                }
+                if (tw.getUser().getUtc_offset() != null) {
+                    p.add(Bytes.toBytes("profile"), Bytes.toBytes("utc_offset"), Bytes.toBytes(tw.getUser().getUtc_offset()));
+                }
+                if (tw.getUser().getTime_zone() != null) {
+                    p.add(Bytes.toBytes("profile"), Bytes.toBytes("time_zone"), Bytes.toBytes(tw.getUser().getTime_zone()));
+                }
+                if (tw.getUser().getNotifications() != null) {
+                    p.add(Bytes.toBytes("profile"), Bytes.toBytes("notifications"), Bytes.toBytes(tw.getUser().getNotifications()));
+                }
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("friends_count"), Bytes.toBytes(tw.getUser().getFriends_count()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("screen_name"), Bytes.toBytes(tw.getUser().getScreen_name()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("listed_count"), Bytes.toBytes(tw.getUser().getListed_count()));
+                p.add(Bytes.toBytes("profile"), Bytes.toBytes("is_translator"), Bytes.toBytes(tw.getUser().getIs_translator()));
+
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("text"), Bytes.toBytes(tw.getText()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("favorite_count"), Bytes.toBytes(tw.getFavoriteCount()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("retweet_count"), Bytes.toBytes(tw.getRetweetCount()));
+                if (tw.getContributors() != null) {
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("contributors"), Bytes.toBytes(tw.getContributors()));
+                }
+                if (tw.getCoordinates() != null) {
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("coordinated"), Bytes.toBytes(tw.getCoordinates()));
+                }
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("created_at"), Bytes.toBytes(tw.getCreatedAt()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("favorited"), Bytes.toBytes(tw.getFavorited()));
+                if (tw.getGeo() != null) {
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("geo"), Bytes.toBytes(tw.getGeo()));
+                }
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("truncated"), Bytes.toBytes(tw.getTruncated()));
+                if (tw.getPlace() != null) {
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("place"), Bytes.toBytes(tw.getPlace()));
+                }
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("source"), Bytes.toBytes(tw.getSource()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("lang"), Bytes.toBytes(tw.getLang()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("retweeted"), Bytes.toBytes(tw.getRetweeted()));
+
+                context.write(null, p);
+
+            }
+        } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ConcatTweetsReducer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
