@@ -82,6 +82,7 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
                 p.add(Bytes.toBytes("profile"), Bytes.toBytes("is_translator"), Bytes.toBytes(tw.getUser().getIs_translator()));
 
                 p.add(Bytes.toBytes("content"), Bytes.toBytes("text"), Bytes.toBytes(tw.getText()));
+                p.add(Bytes.toBytes("content"), Bytes.toBytes("keyword"), Bytes.toBytes(tw.getKeyword()));
                 p.add(Bytes.toBytes("content"), Bytes.toBytes("favorite_count"), Bytes.toBytes(tw.getFavoriteCount()));
                 p.add(Bytes.toBytes("content"), Bytes.toBytes("retweet_count"), Bytes.toBytes(tw.getRetweetCount()));
                 if (tw.getContributors() != null) {
@@ -113,7 +114,10 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
 
     public void parseJSON(String singleLine) {
         JSONObject json = (JSONObject) JSONValue.parse(singleLine);
-        JSONArray jry = (JSONArray) json.get("statuses");
+        String keyword = (String) json.get("class");
+
+        JSONObject data = (JSONObject) json.get("data");
+        JSONArray jry = (JSONArray) data.get("statuses");
         if (jry == null) {
             return;
         }
@@ -124,6 +128,7 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
             pobj = (JSONObject) obj.get("user");
             JsonTweet jt = new JsonTweet(obj.get("id_str").toString(), pobj.get("id_str").toString());
             jt.setText(obj.get("text").toString());
+            jt.setKeyword(keyword);
             jt.setRetweetCount(obj.get("retweet_count").toString());
             jt.setFavoriteCount(obj.get("favorite_count").toString());
             if (obj.get("contributors") != null) {

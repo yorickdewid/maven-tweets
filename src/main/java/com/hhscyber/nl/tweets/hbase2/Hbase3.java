@@ -5,7 +5,6 @@
  */
 package com.hhscyber.nl.tweets.hbase2;
 
-import static com.hhscyber.nl.tweets.concattweets.ConcatTweets.countReducers;
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
 import io.github.htools.io.DirComponent;
@@ -36,7 +35,7 @@ public class Hbase3 {
 
         job.setInputFormatClass(TextInputFormat.class);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_test", null, job);
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets", null, job);
 
         job.setMapperClass(Hbase2Mapper.class);
         job.setReducerClass(Hbase2Reducer.class);

@@ -25,6 +25,7 @@ public class JsonTweet {
     private String truncated;
     private String favorited;
     private String coordinates;
+    private String keyword;
     private final JsonTweetUser profile;
     
     public JsonTweet(String id, String pid) {
@@ -83,6 +84,10 @@ public class JsonTweet {
     public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
     }
+    
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
 
     /* getters */
     public String getId() {
@@ -139,6 +144,10 @@ public class JsonTweet {
 
     public String getCoordinates() {
         return this.coordinates;
+    }
+    
+    public String getKeyword() {
+        return this.keyword;
     }
 
     public JsonTweetUser getUser() {
