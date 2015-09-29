@@ -32,6 +32,7 @@ public class Hbase3 {
         Job job = new Job(conf, "hbasetest");
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Text.class);
+        job.setReduceSpeculativeExecution(true);
 
         job.setInputFormatClass(TextInputFormat.class);
 
@@ -40,6 +41,7 @@ public class Hbase3 {
         job.setMapperClass(Hbase2Mapper.class);
         job.setReducerClass(Hbase2Reducer.class);
         job.setNumReduceTasks(countReducers(conf, conf.getHDFSPath("input")));
+        //job.setNumReduceTasks(0);
 
         TextInputFormat.addInputPath(job, conf.getHDFSPath("input"));
 
