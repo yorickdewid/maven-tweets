@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hhscyber.nl.tweets.hbase2;
+    package com.hhscyber.nl.tweets.lang;
 
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
@@ -13,36 +13,30 @@ import java.io.IOException;
 import java.util.HashSet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
-import org.apache.hadoop.hbase.mapreduce.*;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  *
  * @author eve
  */
-public class Hbase3 {
+public class Language {
 
     /**
      * @param args the command line arguments
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, Exception {
-        Conf conf = new Conf(args, "input");
-        Job job = new Job(conf, "TweetsHbase3");
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Text.class);
-        job.setReduceSpeculativeExecution(true);
+        Conf conf = new Conf();
+        Job job = new Job(conf, "TweetsLanguage");
 
-        job.setInputFormatClass(TextInputFormat.class);
+        Scan scan = new Scan();
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_test", null, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, LanguageMapper.class, null, null, job);
+        job.setNumReduceTasks(0);
 
-        job.setMapperClass(Hbase2Mapper.class);
-        job.setReducerClass(Hbase2Reducer.class);
-        job.setNumReduceTasks(countReducers(conf, conf.getHDFSPath("input")));
-
-        TextInputFormat.addInputPath(job, conf.getHDFSPath("input"));
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_lang", null, job);
 
         job.waitForCompletion(true);
     }
@@ -55,4 +49,5 @@ public class Hbase3 {
         }
         return timestamps.size();
     }
+    
 }
