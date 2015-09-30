@@ -101,5 +101,10 @@
             <artifactId>hbase-server</artifactId>
             <version>0.98.6.1-hadoop2</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>carmen</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
