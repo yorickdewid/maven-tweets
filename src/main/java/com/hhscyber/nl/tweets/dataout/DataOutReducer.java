@@ -19,7 +19,7 @@ public class DataOutReducer extends Reducer<Text, Text, Text, Text> {
     public void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
 
         for (Text val : values) {
-            context.write(key, val);
+            context.write(null, val);
         }
     }
 }
