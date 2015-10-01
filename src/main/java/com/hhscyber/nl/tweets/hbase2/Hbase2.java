@@ -19,6 +19,7 @@ import org.apache.hadoop.util.ToolRunner;
  *
  * @author eve
  */
+@Deprecated
 public class Hbase2 implements Tool{
     private static Configuration conf;
     /**

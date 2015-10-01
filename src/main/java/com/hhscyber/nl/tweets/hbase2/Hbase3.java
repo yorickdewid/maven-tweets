@@ -36,7 +36,7 @@ public class Hbase3 {
 
         job.setInputFormatClass(TextInputFormat.class);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_test", null, job);
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_test2", null, job);
 
         job.setMapperClass(Hbase2Mapper.class);
         job.setReducerClass(Hbase2Reducer.class);
