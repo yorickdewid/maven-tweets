@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-    package com.hhscyber.nl.tweets.location;
+    package com.hhscyber.nl.tweets.customspamfilter;
 
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
  *
  * @author eve
  */
-public class Location {
+public class Spamfilter {
 
     /**
      * @param args the command line arguments
@@ -28,15 +28,14 @@ public class Location {
      */
     public static void main(String[] args) throws IOException, Exception {
         Conf conf = new Conf();
-        Job job = new Job(conf, "TweetsLocation");
-        String stop = "633223982884327426"; //1000 tweets?
-        Scan scan = new Scan();
-        scan.setStopRow(stop.getBytes());
+        Job job = new Job(conf, "TweetsLanguage");
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, LocationMapper.class, null, null, job);
+        Scan scan = new Scan();
+
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, SpamfilterMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_lang", null, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_lang", null, job);
 
         job.waitForCompletion(true);
     }
