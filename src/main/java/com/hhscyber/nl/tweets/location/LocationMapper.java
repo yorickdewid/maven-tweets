@@ -50,10 +50,10 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
      */
     private static void hbaseHadoop(ImmutableBytesWritable key, Result result)
     {
-        byte[] b = result.getValue(Bytes.toBytes("profile"), Bytes.toBytes("utc_offset"));
-        byte[] b2 = result.getValue(Bytes.toBytes("profile"), Bytes.toBytes("location"));
-        byte[] b3 = result.getValue(Bytes.toBytes("content"), Bytes.toBytes("geo"));
-        byte[] b4 = result.getValue(Bytes.toBytes("profile"), Bytes.toBytes("geo_enabled"));
+        byte[] b = getValueSafe(result,"profile","utc_offset");
+        byte[] b2 = getValueSafe(result,"profile","location");
+        byte[] b3 = getValueSafe(result,"content","geo");
+        byte[] b4 = getValueSafe(result,"profile","geo_enabled");
         /*
             
             PLACE object skipped
@@ -62,26 +62,47 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             
             */
         JSONObject json = new JSONObject();
-        String offset = new String(b);
-        String location = new String(b2);
-        String geo = "";
-        if(b3 != null)
-        {
-           geo =  new String(b3);
-        }
-        String geo_enabled  = new String(b4);
+        String offset = createStringFromByte(b);
+        String location = createStringFromByte(b2);
+        String geo = createStringFromByte(b3);
+        String geo_enabled  = createStringFromByte(b4);
         JSONObject user = new JSONObject();
-        user.put("utc_offset", offset);
+        JSONObject entities = new JSONObject();
+        entities.put("utc_offset", offset);
         user.put("location",location);
         user.put("geo_enabled",geo_enabled);
         json.put("user",user);
         json.put("geo",geo);
+        json.put("entities",entities);
         try {
             getLocation(json);
         } catch (IOException ex) {
             Logger.getLogger(LocationMapper.class.getName()).log(Level.SEVERE, null, ex);
         }
 
+    }
+    
+    /**
+     * Stop nullpointers
+     * @param b
+     * @return 
+     */
+    private static String createStringFromByte(byte[] b){   
+        if(b!= null){
+            return new String(b);
+        }
+        else{
+            return "";
+        }
+    }
+    
+    private static byte[] getValueSafe(Result result,String family, String column){
+        if(result.containsColumn(Bytes.toBytes(family), Bytes.toBytes(column))){
+            return result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
+        }
+        else{
+            return null;
+        }
     }
 
      private static void getLocation(JSONObject json) throws IOException{
