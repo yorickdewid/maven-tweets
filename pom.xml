@@ -11,6 +11,49 @@
         <maven.compiler.target>1.7</maven.compiler.target>
         <mainClass>com.hhscyber.nl.tweets.hbase2.Hbase2</mainClass>
     </properties>
+    <repositories>
+<!--        <repository>
+            <id>repo</id>
+            <name>Central</name>
+            <url>http://repo.maven.apache.org/maven2</url>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>                
+        <repository>
+            <id>HortonWorks</id>
+            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+            <releases>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>ignore</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>-->
+        <repository>
+            <id>Sona</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <build>
         <plugins>
             <plugin>
@@ -93,8 +136,7 @@
         <dependency>
             <groupId>io.github.htools</groupId>
             <artifactId>htools</artifactId>
-            <version>0.26</version>
-            <type>jar</type>
+            <version>0.27-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hbase</groupId>

@@ -64,7 +64,11 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         JSONObject json = new JSONObject();
         String offset = new String(b);
         String location = new String(b2);
-        String geo =  new String(b3);
+        String geo = "";
+        if(b3 != null)
+        {
+           geo =  new String(b3);
+        }
         String geo_enabled  = new String(b4);
         JSONObject user = new JSONObject();
         user.put("utc_offset", offset);

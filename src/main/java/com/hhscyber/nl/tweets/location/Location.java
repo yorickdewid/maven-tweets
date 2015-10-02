@@ -27,8 +27,9 @@ public class Location {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, Exception {
-        Conf conf = new Conf();
+        Conf conf = new Conf(args,"");
         Job job = new Job(conf, "TweetsLocation");
+        job.setJarByClass(Location.class);
         String stop = "633223982884327426"; //1000 tweets?
         Scan scan = new Scan();
         scan.setStopRow(stop.getBytes());
