@@ -27,15 +27,17 @@ public class Spamfilter {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, Exception {
-        Conf conf = new Conf();
-        Job job = new Job(conf, "TweetsLanguage");
-
+        Conf conf = new Conf(args,"");
+        Job job = new Job(conf, "TweetsSpamFilter");
+        job.setJarByClass(Spamfilter.class);
+        String stop = "633223982884327426"; //1000 tweets?
         Scan scan = new Scan();
+        scan.setStopRow(stop.getBytes());
 
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, SpamfilterMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_lang", null, job);
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_spamcustom", null, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }
