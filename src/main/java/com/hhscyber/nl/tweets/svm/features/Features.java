@@ -31,7 +31,7 @@ public class Features {
         Scan scan = new Scan();
         scan.addFamily(Bytes.toBytes("content"));
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_test", scan, SetMapper.class, Text.class, IntWritable.class, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, SetMapper.class, Text.class, IntWritable.class, job);
         TableMapReduceUtil.initTableReducerJob("hhscyber:svm_featureset", SetReducer.class, job);
         job.setNumReduceTasks(1);
 

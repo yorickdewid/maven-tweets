@@ -28,12 +28,25 @@ public class SetReducer extends TableReducer<Text, IntWritable, ImmutableBytesWr
         System.out.println(key.toString() + " Counter " + (counter + 1));
         String idx = Integer.toString(++counter);
 
-        if (idx.length() > 1) {
+        if (isValid(key.toString())) {
 
             Put put = new Put(Bytes.toBytes(idx));
             put.add(Bytes.toBytes("word"), Bytes.toBytes("index"), Bytes.toBytes(key.toString()));
 
             context.write(null, put);
         }
+    }
+    
+    private boolean isValid(String s) {
+        if (s.length() < 2) {
+            return false;
+        }
+        if (s.contains("http://") || s.contains("https://")) {
+            return false;
+        }
+        if (!s.matches("[#._@a-zA-Z0-9]{2,}")) {
+            return false;
+        }
+        return true;
     }
 }
