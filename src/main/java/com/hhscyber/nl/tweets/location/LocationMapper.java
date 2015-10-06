@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minidev.json.JSONObject;
+import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -29,11 +30,11 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
     @Override
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
-        hbaseHadoop(row, value);
-        //Put p = resultToPut(row, value);
-//        if (p != null) {
-//            context.write(row, p);
-//        }
+        Location location = buildJSONLocation(row, value);
+        Put p = resultToPut(row, value, location);
+        if (p != null) {
+            context.write(row, p);
+        }
     }
     
     /*
@@ -48,12 +49,12 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
      * @param key
      * @param result 
      */
-    private static void hbaseHadoop(ImmutableBytesWritable key, Result result)
+    private static Location buildJSONLocation(ImmutableBytesWritable key, Result result)
     {
-        byte[] b = getValueSafe(result,"profile","utc_offset");
-        byte[] b2 = getValueSafe(result,"profile","location");
-        byte[] b3 = getValueSafe(result,"content","geo");
-        byte[] b4 = getValueSafe(result,"profile","geo_enabled");
+        byte[] b = hbasehelper.HbaseHelper.getValueSafe(result,"profile","utc_offset");
+        byte[] b2 = hbasehelper.HbaseHelper.getValueSafe(result,"profile","location");
+        byte[] b3 = hbasehelper.HbaseHelper.getValueSafe(result,"content","geo");
+        byte[] b4 = hbasehelper.HbaseHelper.getValueSafe(result,"profile","geo_enabled");
         /*
             
             PLACE object skipped
@@ -62,10 +63,10 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             
             */
         JSONObject json = new JSONObject();
-        String offset = createStringFromByte(b);
-        String location = createStringFromByte(b2);
-        String geo = createStringFromByte(b3);
-        String geo_enabled  = createStringFromByte(b4);
+        String offset = hbasehelper.HbaseHelper.createStringFromByte(b);
+        String location = hbasehelper.HbaseHelper.createStringFromByte(b2);
+        String geo = hbasehelper.HbaseHelper.createStringFromByte(b3);
+        String geo_enabled  = hbasehelper.HbaseHelper.createStringFromByte(b4);
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
         entities.put("utc_offset", offset);
@@ -75,37 +76,14 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         json.put("geo",geo);
         json.put("entities",entities);
         try {
-            getLocation(json);
+            return getLocation(json);
         } catch (IOException ex) {
             Logger.getLogger(LocationMapper.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-    }
-    
-    /**
-     * Stop nullpointers
-     * @param b
-     * @return 
-     */
-    private static String createStringFromByte(byte[] b){   
-        if(b!= null){
-            return new String(b);
-        }
-        else{
-            return "";
-        }
-    }
-    
-    private static byte[] getValueSafe(Result result,String family, String column){
-        if(result.containsColumn(Bytes.toBytes(family), Bytes.toBytes(column))){
-            return result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
-        }
-        else{
-            return null;
-        }
+        return null;
     }
 
-     private static void getLocation(JSONObject json) throws IOException{
+     private static Location getLocation(JSONObject json) throws IOException{
         // Parse the command line.
         LocationResolver resolver = LocationResolver.getLocationResolver();
 
@@ -124,29 +102,29 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         if (location != null) {
             System.out.println("Found location: " + location.toString());
             numResolved++;
+            return location;
         }
-
-         System.out.println("Resolved locations for " + numResolved + " of " + total + " tweets.");
+        return null;
+       //System.out.println("Resolved locations for " + numResolved + " of " + total + " tweets.");
     }
 
     
-//    private static Put resultToPut(ImmutableBytesWritable key, Result result) throws IOException {
-//        Put put = new Put(key.get());
-//        byte[] b = result.getValue(Bytes.toBytes("content"), Bytes.toBytes("lang"));
-//        byte[] b2 = result.getValue(Bytes.toBytes("profile"), Bytes.toBytes("lang"));
-//
-//        String clang = new String(b);
-//        String plang = new String(b2);
-//
-//        System.out.println("CLANG " + clang + " PLANG " + plang);
-//        if (clang.equals("en") || plang.equals("en") || clang.equals("nl") || plang.equals("nl")) {
-//            for (KeyValue kv : result.raw()) {
-//                put.add(kv);
-//            }
-//            return put;
-//        } else {
-//            return null;
-//        }
-//
-//    }
+    private static Put resultToPut(ImmutableBytesWritable key, Result result,Location location) throws IOException {
+        Put put = new Put(key.get());
+        //city
+        //county
+        //state
+        // location_country
+        // known_location
+            for (Cell c : result.rawCells()) {
+                put.add(c);
+            }
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("city"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCity()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
+            return put;
+
+    }
 }

@@ -6,13 +6,11 @@
 package com.hhscyber.nl.tweets.customspamfilter;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.mapreduce.Mapper;
 
 /**
@@ -43,8 +41,8 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
     }
 
     private static void addPositiveSpamList(Result result) {
-        byte[] b = getValueSafe(result, "content", "keyword");
-        String keyword = createStringFromByte(b);
+        byte[] b = hbasehelper.HbaseHelper.getValueSafe(result, "content", "keyword");
+        String keyword = hbasehelper.HbaseHelper.createStringFromByte(b);
 
         /*
          EXPLANANTION
@@ -62,20 +60,20 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
      * @param result
      */
     private static void filterSpam(ImmutableBytesWritable key, Result result) {
-        byte[] b = getValueSafe(result, "content", "text");
-        byte[] b2 = getValueSafe(result, "profile", "verified");
-        byte[] b3 = getValueSafe(result, "content", "retweet_count");
-        byte[] b4 = getValueSafe(result, "profile", "followers_count");
-        byte[] b5 = getValueSafe(result, "content", "favorite_count");
+        byte[] b = hbasehelper.HbaseHelper.getValueSafe(result, "content", "text");
+        byte[] b2 = hbasehelper.HbaseHelper.getValueSafe(result, "profile", "verified");
+        byte[] b3 = hbasehelper.HbaseHelper.getValueSafe(result, "content", "retweet_count");
+        byte[] b4 = hbasehelper.HbaseHelper.getValueSafe(result, "profile", "followers_count");
+        byte[] b5 = hbasehelper.HbaseHelper.getValueSafe(result, "content", "favorite_count");
 
         int countSpam = 0;
 
-        String text = createStringFromByte(b);
-        String verified = createStringFromByte(b2);
+        String text = hbasehelper.HbaseHelper.createStringFromByte(b);
+        String verified = hbasehelper.HbaseHelper.createStringFromByte(b2);
 
-        int retweetCount = createIntegerFromByte(b3);
-        int followersCount = createIntegerFromByte(b4);
-        int favoriteCount = createIntegerFromByte(b5);
+        int retweetCount = hbasehelper.HbaseHelper.createIntegerFromByte(b3);
+        int followersCount = hbasehelper.HbaseHelper.createIntegerFromByte(b4);
+        int favoriteCount = hbasehelper.HbaseHelper.createIntegerFromByte(b5);
         if (verified.equals("true")) {
             countSpam += 5;
         }
@@ -96,7 +94,7 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
             countSpam += 5;
         }
 
-        String row = createStringFromByte(result.getRow());
+        String row = hbasehelper.HbaseHelper.createStringFromByte(result.getRow());
         countSpam += filterText(text, countSpam);
         countSpam += checkNumberAffected(text, countSpam);
 
@@ -149,35 +147,5 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
         return countPoints;
     }
 
-    /**
-     * Stop nullpointers
-     *
-     * @param b
-     * @return
-     */
-    private static String createStringFromByte(byte[] b) {
-        if (b != null) {
-            return new String(b);
-        } else {
-            return "";
-        }
-    }
-
-    private static int createIntegerFromByte(byte[] b) {
-        if (b != null) {
-            int count = new BigInteger(b).intValue();
-            return count;
-        } else {
-            return 0;
-        }
-    }
-
-    private static byte[] getValueSafe(Result result, String family, String column) {
-        if (result.containsColumn(Bytes.toBytes(family), Bytes.toBytes(column))) {
-            return result.getValue(Bytes.toBytes(family), Bytes.toBytes(column));
-        } else {
-            return null;
-        }
-    }
 
 }
