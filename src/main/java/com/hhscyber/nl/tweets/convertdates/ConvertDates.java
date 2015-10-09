@@ -28,14 +28,14 @@ public class ConvertDates {
      */
     public static void main(String[] args) throws IOException, Exception {
         Conf conf = new Conf();
-        Job job = new Job(conf, "TweetsLanguage");
+        Job job = new Job(conf, "ConvertDates");
 
         Scan scan = new Scan();
 
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, ConvertDatesMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_lang", null, job);
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets", null, job);
 
         job.waitForCompletion(true);
     }

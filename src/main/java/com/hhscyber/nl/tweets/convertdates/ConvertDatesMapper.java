@@ -5,8 +5,6 @@
  */
 package com.hhscyber.nl.tweets.convertdates;
 
-import com.hhscyber.nl.carmen.types.Location;
-import com.hhscyber.nl.tweets.lang.*;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,7 +14,6 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -58,7 +55,7 @@ public class ConvertDatesMapper extends TableMapper<ImmutableBytesWritable, Put>
             String indexes[] = dateText.split(" "); // creates 5 indexes starting on 0
             String month = indexes[1];//month textual
             String day = indexes[2]; //day numeric
-            String year = indexes[4];//year; numeric
+            String year = indexes[5];//year; numeric
             Date date = new SimpleDateFormat("MMM", Locale.ENGLISH).parse(month);
             Calendar cal = Calendar.getInstance();
             cal.setTime(date);
