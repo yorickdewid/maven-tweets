@@ -28,6 +28,9 @@ import org.apache.hadoop.mapreduce.Mapper;
  */
 public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
+    static int numResolved;
+    static int total;
+    
     @Override
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
         Location location = buildJSONLocation(row, value);
@@ -87,11 +90,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         // Parse the command line.
         LocationResolver resolver = LocationResolver.getLocationResolver();
 
-        int numResolved;
-        int total;
         ObjectMapper mapper = new ObjectMapper();
-        numResolved = 0;
-        total = 0;
 
         @SuppressWarnings("unchecked")
         HashMap<String, Object> tweet = (HashMap<String, Object>) mapper.readValue(json.toString(), Map.class);
@@ -100,8 +99,12 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         Location location = resolver.resolveLocationFromTweet(tweet);
 
         if (location != null) {
-            System.out.println("Found location: " + location.toString());
-            numResolved++;
+            
+            //System.out.println("Found location: " + location.toString());
+            if(location.getCountry() != null && location.getCity() != null)
+            {
+                numResolved++;
+            }
             return location;
         }
         return null;
@@ -127,4 +130,10 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             return put;
 
     }
+
+    @Override
+    protected void cleanup(Context context) throws IOException, InterruptedException {
+          System.out.println("Resolved locations for " + numResolved + " of " + total + " tweets.");
+    }
+    
 }
