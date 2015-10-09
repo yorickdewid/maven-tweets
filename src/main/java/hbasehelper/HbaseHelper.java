@@ -79,4 +79,10 @@ public class HbaseHelper {
         }
     }
     
+    public static String createStringFromRawHbase(Result result,String family,String column){
+        byte[] b = getValueSafe(result, family, column);
+        String s = createStringFromByte(b);
+        return s;
+    }
+    
 }
