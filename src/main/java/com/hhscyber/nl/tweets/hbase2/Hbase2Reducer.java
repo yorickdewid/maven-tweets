@@ -135,6 +135,10 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
                 if (tw.getKeyword() != null) {
                     p.add(Bytes.toBytes("content"), Bytes.toBytes("keyword"), Bytes.toBytes(tw.getKeyword()));
                 }
+                if (tw.getUrls()!= null) {
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("urls"), Bytes.toBytes(tw.getUrls()));
+                }
+                
                 if (tw.getFavoriteCount() != null) {
                     p.add(Bytes.toBytes("content"), Bytes.toBytes("favorite_count"), Bytes.toBytes(tw.getFavoriteCount()));
                 }
@@ -145,7 +149,7 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
                     p.add(Bytes.toBytes("content"), Bytes.toBytes("contributors"), Bytes.toBytes(tw.getContributors()));
                 }
                 if (tw.getCoordinates() != null) {
-                    p.add(Bytes.toBytes("content"), Bytes.toBytes("coordinated"), Bytes.toBytes(tw.getCoordinates()));
+                    p.add(Bytes.toBytes("content"), Bytes.toBytes("coordinates"), Bytes.toBytes(tw.getCoordinates()));
                 }
                 if (tw.getCreatedAt() != null) {
                     p.add(Bytes.toBytes("content"), Bytes.toBytes("created_at"), Bytes.toBytes(tw.getCreatedAt()));
@@ -197,6 +201,21 @@ public class Hbase2Reducer extends TableReducer<Text, Text, ImmutableBytesWritab
             JsonTweet jt = new JsonTweet(obj.get("id_str").toString(), pobj.get("id_str").toString());
             jt.setText(obj.get("text").toString());
             jt.setKeyword(keyword);
+            if (obj.get("entities") != null) {
+                JSONObject nobj = (JSONObject) obj.get("entities");
+                if (nobj != null) {
+                    JSONArray ury = (JSONArray) nobj.get("urls");
+                    if (ury != null) {
+                        for (Object ury1 : ury) {
+                            JSONObject urlobj = (JSONObject) ury1;
+                            if (urlobj != null) {
+                                jt.addUrl(urlobj.get("expanded_url").toString());
+                                System.out.println("URL: "+urlobj.get("expanded_url").toString());
+                            }
+                        }
+                    }
+                }
+            }
             if (obj.get("retweet_count") != null) {
                 jt.setRetweetCount(obj.get("retweet_count").toString());
             }

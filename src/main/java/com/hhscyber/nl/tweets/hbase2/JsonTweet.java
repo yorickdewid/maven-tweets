@@ -5,6 +5,8 @@
  */
 package com.hhscyber.nl.tweets.hbase2;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author eve
@@ -27,10 +29,16 @@ public class JsonTweet {
     private String coordinates;
     private String keyword;
     private final JsonTweetUser profile;
-    
+    private ArrayList<String> urlList;
+
     public JsonTweet(String id, String pid) {
         this.id = id;
         this.profile = new JsonTweetUser(pid);
+        urlList = new ArrayList<>();
+    }
+
+    public void addUrl(String url) {
+        this.urlList.add(url);
     }
 
     public void setText(String text) {
@@ -84,7 +92,7 @@ public class JsonTweet {
     public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
     }
-    
+
     public void setKeyword(String keyword) {
         this.keyword = keyword;
     }
@@ -96,6 +104,24 @@ public class JsonTweet {
 
     public String getText() {
         return this.text;
+    }
+
+    public String getUrls() {
+        if (urlList.isEmpty()) {
+            return null;
+        }
+        int i = urlList.size();
+        String arr = "[";
+        for (String s : urlList) {
+            arr += s;
+            if (i>1) {
+                arr += ",";
+            }
+            i--;
+        }
+        arr += "]";
+
+        return arr;
     }
 
     public String getRetweetCount() {
@@ -145,7 +171,7 @@ public class JsonTweet {
     public String getCoordinates() {
         return this.coordinates;
     }
-    
+
     public String getKeyword() {
         return this.keyword;
     }

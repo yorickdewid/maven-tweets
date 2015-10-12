@@ -148,5 +148,10 @@
             <artifactId>carmen</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>libsvm</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
