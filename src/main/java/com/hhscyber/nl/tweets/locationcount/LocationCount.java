@@ -32,11 +32,11 @@ public class LocationCount {
      */
     public static void main(String[] args) throws IOException, Exception {
         Conf conf = new Conf(args,"");
-        Job job = new Job(conf, "TweetsLocation");
+        Job job = new Job(conf, "CountLocation");
         job.setJarByClass(LocationCount.class);
         String stop = "631415321467965440"; //10 tweets
         Scan scan = new Scan();
-        scan.setStopRow(stop.getBytes());
+        //scan.setStopRow(stop.getBytes());
 
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, LocationCountMapper.class, ImmutableBytesWritable.class, Result.class, job);
         job.setNumReduceTasks(1);

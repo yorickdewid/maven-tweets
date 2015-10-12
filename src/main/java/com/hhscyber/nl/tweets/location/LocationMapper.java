@@ -128,6 +128,8 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             put.add(Bytes.toBytes("location"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
             return put;
 

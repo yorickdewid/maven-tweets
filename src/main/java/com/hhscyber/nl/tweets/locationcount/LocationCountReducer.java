@@ -34,17 +34,41 @@ public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, R
      */
     private static void getKnownAndUnknownLocations(Result result) {
         boolean bool_known = hbasehelper.HbaseHelper.createBooleanFromRawHbase(result, "location", "known");
+        String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "city");
+        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "county");
+        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "country");
+        String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "state");
+        String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "longitude");
+        String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "latitude");
         count.totalLocations++;
         if (bool_known) {
             count.knownLocations++;
         } else {
             count.unknownLocations++;
         }
+        if (!city.equals("")) {
+            count.amountOfCities++;
+        }
+        if (!county.equals("")) {
+            count.amountOfCounties++;
+        }
+        if (!country.equals("")) {
+            count.amountOfCountries++;
+        }
+        if (!state.equals("")) {
+            count.amountOfState++;
+        }
+        if (!longitude.equals("") && !latitude.equals("")) {
+            count.amountOfGeo++;
+        }
+
     }
 
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
         System.out.println(count.toString());
+        System.out.println("Percentage of known locations:" + (((double)count.knownLocations / (double)count.totalLocations) * 100.00));
+        System.out.println(count.getOptionalFields());
         super.cleanup(context); //To change body of generated methods, choose Tools | Templates.
     }
 
