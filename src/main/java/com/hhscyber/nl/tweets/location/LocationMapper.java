@@ -70,11 +70,13 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String location = hbasehelper.HbaseHelper.createStringFromByte(b2);
         String geo = hbasehelper.HbaseHelper.createStringFromByte(b3);
         String geo_enabled  = hbasehelper.HbaseHelper.createStringFromByte(b4);
+        String time_zone = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "profile","time_zone");
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
         entities.put("utc_offset", offset);
         user.put("location",location);
         user.put("geo_enabled",geo_enabled);
+        user.put("time_zone",time_zone);
         json.put("user",user);
         json.put("geo",geo);
         json.put("entities",entities);
@@ -126,6 +128,8 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             put.add(Bytes.toBytes("location"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
+            put.add(Bytes.toBytes("location"), Bytes.toBytes("longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
             put.add(Bytes.toBytes("location"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
             return put;
 

@@ -81,11 +81,11 @@ public class LinkCyberTweetsReducer extends TableReducer<Text, Result, Put> {
         
         if(link.nextRowKey !=  null)
         {
-            put.add(Bytes.toBytes("profile"), Bytes.toBytes("next_cyber_tweet"),link.nextRowKey);
+            put.add(Bytes.toBytes("link"), Bytes.toBytes("next_cyber_tweet"),link.nextRowKey);
         }
         if(link.previousRowKey != null)
         {
-            put.add(Bytes.toBytes("profile"), Bytes.toBytes("next_cyber_tweet"),link.previousRowKey);
+            put.add(Bytes.toBytes("link"), Bytes.toBytes("previous_cyber_tweet"),link.previousRowKey);
         }
 
         try {

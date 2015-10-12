@@ -85,4 +85,11 @@ public class HbaseHelper {
         return s;
     }
     
+    public static boolean createBooleanFromRawHbase(Result result,String family,String column){
+        byte[] b = getValueSafe(result, family, column);
+        String s = createStringFromByte(b);
+        boolean bool = Boolean.valueOf(s);
+        return bool;
+    }
+    
 }
