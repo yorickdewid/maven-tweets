@@ -70,11 +70,13 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String location = hbasehelper.HbaseHelper.createStringFromByte(b2);
         String geo = hbasehelper.HbaseHelper.createStringFromByte(b3);
         String geo_enabled  = hbasehelper.HbaseHelper.createStringFromByte(b4);
+        String time_zone = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "profile","time_zone");
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
         entities.put("utc_offset", offset);
         user.put("location",location);
         user.put("geo_enabled",geo_enabled);
+        user.put("time_zone",time_zone);
         json.put("user",user);
         json.put("geo",geo);
         json.put("entities",entities);

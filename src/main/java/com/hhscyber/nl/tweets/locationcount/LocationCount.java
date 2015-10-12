@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-    package com.hhscyber.nl.tweets.location;
+    package com.hhscyber.nl.tweets.locationcount;
 
+import com.hhscyber.nl.tweets.location.*;
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
 import io.github.htools.io.DirComponent;
@@ -13,14 +14,17 @@ import java.io.IOException;
 import java.util.HashSet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.io.Text;
 
 /**
  *
  * @author eve
  */
-public class Location {
+public class LocationCount {
 
     /**
      * @param args the command line arguments
@@ -29,14 +33,15 @@ public class Location {
     public static void main(String[] args) throws IOException, Exception {
         Conf conf = new Conf(args,"");
         Job job = new Job(conf, "TweetsLocation");
-        job.setJarByClass(Location.class);
-        String stop = "633223982884327426"; //1000 tweets?
+        job.setJarByClass(LocationCount.class);
+        String stop = "631415321467965440"; //10 tweets
         Scan scan = new Scan();
+        scan.setStopRow(stop.getBytes());
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, LocationMapper.class, null, null, job);
-        job.setNumReduceTasks(0);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, LocationCountMapper.class, ImmutableBytesWritable.class, Result.class, job);
+        job.setNumReduceTasks(1);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", null, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", LocationCountReducer.class, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }
