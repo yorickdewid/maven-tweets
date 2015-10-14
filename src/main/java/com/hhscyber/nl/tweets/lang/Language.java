@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-    package com.hhscyber.nl.tweets.lang;
+package com.hhscyber.nl.tweets.lang;
 
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
@@ -49,5 +49,5 @@ public class Language {
         }
         return timestamps.size();
     }
-    
+
 }
