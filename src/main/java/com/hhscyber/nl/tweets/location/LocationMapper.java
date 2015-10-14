@@ -58,6 +58,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         byte[] b2 = hbasehelper.HbaseHelper.getValueSafe(result,"profile","location");
         byte[] b3 = hbasehelper.HbaseHelper.getValueSafe(result,"content","geo");
         byte[] b4 = hbasehelper.HbaseHelper.getValueSafe(result,"profile","geo_enabled");
+        byte[] b5 = hbasehelper.HbaseHelper.getValueSafe(result,"content","coordinated");
         /*
             
             PLACE object skipped
@@ -71,6 +72,11 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String geo = hbasehelper.HbaseHelper.createStringFromByte(b3);
         String geo_enabled  = hbasehelper.HbaseHelper.createStringFromByte(b4);
         String time_zone = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "profile","time_zone");
+        String coordinates = hbasehelper.HbaseHelper.createStringFromByte(b5);
+        if(coordinates.equals("")) //prevent map classcast exception 
+        {
+            coordinates = "{\"type\":\"Point\",\"coordinates\":[0,0]}";
+        }
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
         entities.put("utc_offset", offset);
@@ -79,6 +85,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         user.put("time_zone",time_zone);
         json.put("user",user);
         json.put("geo",geo);
+        json.put("coordinates",coordinates);
         json.put("entities",entities);
         try {
             return getLocation(json);
