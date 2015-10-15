@@ -32,7 +32,7 @@ public class DataOut {
         Scan scan = new Scan();
         scan.addFamily(Bytes.toBytes("content"));
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_test", scan, DataOutMapper.class, Text.class, Text.class, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_lang", scan, DataOutMapper.class, Text.class, Text.class, job);
 
         job.setReducerClass(DataOutReducer.class);
         job.setNumReduceTasks(1);

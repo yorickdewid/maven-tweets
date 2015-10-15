@@ -8,8 +8,6 @@ package com.hhscyber.nl.tweets.svm.train;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +20,14 @@ import org.apache.hadoop.hbase.client.HConnectionManager;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.client.Scan;
-import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
+import org.tartarus.snowball.ext.englishStemmer;
+import io.github.htools.words.SnowballStemmer;
 
 /**
  *
@@ -41,9 +39,11 @@ public class TrainMapper extends Mapper<LongWritable, Text, Text, Text> {
     private HConnection connection;
     private HTableInterface table;
     private Map words;
+    private englishStemmer stemmer;
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
+        this.stemmer = new englishStemmer();
         connection = HConnectionManager.createConnection(context.getConfiguration());
         table = connection.getTable("hhscyber:svm_featureset");
 
@@ -79,8 +79,10 @@ public class TrainMapper extends Mapper<LongWritable, Text, Text, Text> {
         Set<Integer> hsline = new HashSet<>();
         StringTokenizer itr = new StringTokenizer(value.toString());
         while (itr.hasMoreTokens()) {
-            String tok = itr.nextToken();
-            String idx = (String) words.get(tok);
+            String tok = itr.nextToken().toLowerCase();
+            stemmer.setCurrent(tok);
+            stemmer.stem();
+            String idx = (String) words.get(stemmer.getCurrent());
             if (idx != null) {
                 System.out.println(tok + " IDX " + idx);
                 hsline.add(Integer.parseInt(idx));

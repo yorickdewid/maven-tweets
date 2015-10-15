@@ -10,7 +10,6 @@ import io.github.htools.hbase.HBJob;
 import java.io.IOException;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -34,10 +33,8 @@ public class Train {
         hdfs.delete(new Path("trainer"), true);
         
         Job client = new HBJob(conf, "SVMTrainer");
-        TableMapReduceUtil.initCredentials(client);
+
         client.setJarByClass(Train.class);
-        client.setMapSpeculativeExecution(true);
-        client.setReduceSpeculativeExecution(false);
         client.setMapOutputKeyClass(Text.class);
         client.setMapOutputValueClass(Text.class);
 
