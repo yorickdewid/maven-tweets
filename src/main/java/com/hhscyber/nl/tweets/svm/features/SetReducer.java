@@ -5,14 +5,15 @@
  */
 package com.hhscyber.nl.tweets.svm.features;
 
+import io.github.htools.words.SnowballStemmer;
 import java.io.IOException;
-import java.util.regex.Pattern;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.tartarus.snowball.ext.englishStemmer;
 
 /**
  *
@@ -21,7 +22,13 @@ import org.apache.hadoop.io.Text;
 public class SetReducer extends TableReducer<Text, IntWritable, ImmutableBytesWritable> {
 
     static int counter = 0;
-    //Pattern p = Pattern.compile("[#_@a-zA-Z0-9]{2,}");
+    String lang = "english";
+    englishStemmer stemmer;
+
+    public SetReducer() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        //Class stemClass = Class.forName("org.tartarus.snowball.ext." + this.lang + "Stemmer");
+        this.stemmer = new englishStemmer();
+    }
 
     @Override
     public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -30,13 +37,17 @@ public class SetReducer extends TableReducer<Text, IntWritable, ImmutableBytesWr
 
         if (isValid(key.toString())) {
 
+            String skey = key.toString().toLowerCase();
+            stemmer.setCurrent(skey);
+            stemmer.stem();
+
             Put put = new Put(Bytes.toBytes(idx));
-            put.add(Bytes.toBytes("word"), Bytes.toBytes("index"), Bytes.toBytes(key.toString()));
+            put.add(Bytes.toBytes("word"), Bytes.toBytes("index"), Bytes.toBytes(stemmer.getCurrent()));
 
             context.write(null, put);
         }
     }
-    
+
     private boolean isValid(String s) {
         if (s.length() < 2) {
             return false;
