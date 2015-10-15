@@ -7,6 +7,7 @@ package com.hhscyber.nl.tweets.svm.features;
 
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
+import io.github.htools.hbase.HBJob;
 import java.io.IOException;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
@@ -25,9 +26,10 @@ public class Features {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, Exception {
-        Conf conf = new Conf();
-        Job job = new Job(conf, "TweetsSVMFeatureSet");
+        Conf conf = new Conf(args, "");
+        Job job = new HBJob(conf, "TweetsSVMFeatureSet");
 
+        job.setJarByClass(Features.class);
         Scan scan = new Scan();
         scan.addFamily(Bytes.toBytes("content"));
 
@@ -37,5 +39,5 @@ public class Features {
 
         job.waitForCompletion(true);
     }
-    
+
 }

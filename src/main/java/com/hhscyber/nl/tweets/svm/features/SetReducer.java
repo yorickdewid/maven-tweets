@@ -26,7 +26,6 @@ public class SetReducer extends TableReducer<Text, IntWritable, ImmutableBytesWr
     englishStemmer stemmer;
 
     public SetReducer() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-        //Class stemClass = Class.forName("org.tartarus.snowball.ext." + this.lang + "Stemmer");
         this.stemmer = new englishStemmer();
     }
 
