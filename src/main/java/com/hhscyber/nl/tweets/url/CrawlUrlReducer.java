@@ -1,17 +1,13 @@
 package com.hhscyber.nl.tweets.url;
 
-import com.hhscyber.nl.tweets.linkcybertweets.LinkCyberTweetsReducer;
-import com.hhscyber.nl.tweets.locationcount.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -30,17 +26,21 @@ import static hbasehelper.HbaseHelper.getPutBytesSafe;
  */
 public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result, Put> {
 
-    public static countObject count = new countObject();
-
     @Override
     protected void reduce(ImmutableBytesWritable key, Iterable<Result> values, Context context) throws IOException, InterruptedException {
+         String url = null;
+         String build = null;
+         Put put = null;
         for (Result result : values) {
-            String url = getUrlFromUrls(result);
+            url = getUrlFromUrls(result);
             if (!url.equals("")) {
-                String build = getUrlContent(url);
-                Put put = new Put(result.getRow());
-                put.add(getPutBytesSafe("content"), getPutBytesSafe("title"), getPutBytesSafe(build));
-                context.write(null, put);
+                build = getUrlContent(url);
+                if(!build.isEmpty())
+                {
+                    put = new Put(result.getRow());
+                    put.add(getPutBytesSafe("content"), getPutBytesSafe("title"), getPutBytesSafe(build));
+                    context.write(null, put);
+                }
             }
         }
     }
@@ -74,6 +74,7 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
 
     private static Elements getElementsFromHtml(String url) {
         try {
+            url = inspectUrl(url);
             Document doc = Jsoup.connect(url).get();
             Elements els = doc.getAllElements();
             return els;
@@ -83,6 +84,14 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
             Logger.getLogger(CrawlUrlReducer.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
+    }
+
+    private static String inspectUrl(String url) {
+        if (url.contains("http://") || url.contains("https")) {
+            return url;
+        } else {
+            return "http://" + url;
+        }
     }
 
     private static String extractTitle(Elements els) {
@@ -96,11 +105,19 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
                     if (text.toLowerCase().contains("moved") && text.toLowerCase().contains("permanently")) {
                         moved = true;
                     }
+//                    if(text.isEmpty())
+//                    {
+//                        h1 = true;
+//                    }
                     break;
                 case "body":
                     if (moved) {
                         url = getMovedUrl(el);
                     }
+//                    if(h1)
+//                    {
+//                        text = el.getAllElements();
+//                    }
                     break;
                 default:
                     break;
@@ -129,7 +146,7 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
         index[0] = url.indexOf("[");
         index[1] = url.indexOf("]");
         char[] chars = new char[index[1]];
-        url.getChars(index[0] + 1, index[1] - 1, chars, 0);
+        url.getChars(index[0] + 1, index[1], chars, 0);
         url = new String(chars, 0, chars.length);
         return url;
     }

@@ -10,14 +10,17 @@ import io.github.htools.hadoop.Job;
 import io.github.htools.io.DirComponent;
 import io.github.htools.io.HDFSPath;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 
@@ -38,31 +41,24 @@ public class CrawlUrl {
         job.setJarByClass(CrawlUrl.class);
         String stop = "633218488010735617"; //475 tweets
         Scan scan = new Scan();
-        scan.setStopRow(stop.getBytes());
+        //scan.setStopRow(stop.getBytes());
+                //List<Filter> rowFilters = new ArrayList<>();
+                SingleColumnValueFilter filterColumn = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("content"),
+                hbasehelper.HbaseHelper.getPutBytesSafe("urls"),
+                CompareFilter.CompareOp.NOT_EQUAL,
+                hbasehelper.HbaseHelper.getPutBytesSafe(""));
+//        rowFilters.add(filterColumn);
+//        
+//        FilterList filters = new FilterList(rowFilters);
+        scan.setFilter(filterColumn);
 
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_lang", scan, CrawlUrlMapper.class, ImmutableBytesWritable.class, Result.class, job);
-        job.setNumReduceTasks(1);
-
-        HBaseAdmin admin = new HBaseAdmin(conf);
-        if (!admin.tableExists(outputTableName)) {
-            HTableDescriptor htable = new HTableDescriptor((outputTableName));
-            htable.addFamily(new HColumnDescriptor("content"));
-            admin.createTable(htable);
-        }
+        job.setNumReduceTasks(10);
         
         TableMapReduceUtil.initTableReducerJob(outputTableName, CrawlUrlReducer.class, job); // if disabled no output folder specfied exception
 
         
         job.waitForCompletion(true);
-    }
-
-    public static int countReducers(Configuration conf, Path inputPath) throws IOException {
-        HashSet<String> timestamps = new HashSet();
-        HDFSPath inHdfsPath = new HDFSPath(conf, inputPath);
-        for (DirComponent path : inHdfsPath.wildcardIterator()) {
-            timestamps.add(path.getName());
-        }
-        return timestamps.size();
     }
     
 }
