@@ -24,19 +24,10 @@ public class TestMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
     @Override
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
-        /*byte[] data = value.getValue(Bytes.toBytes("content"), Bytes.toBytes("text"));
-
-         StringTokenizer itr = new StringTokenizer(new String(data));
-         while (itr.hasMoreTokens()) {
-         word.set(itr.nextToken());
-         //context.write(word, new IntWritable(1));
-         context.write(row)
-         }*/
         Put put = new Put(row.get());
         for (KeyValue kv : value.raw()) {
             put.add(kv);
         }
         context.write(row, put);
-        //context.write(new Put(row.get()), value);
     }
 }
