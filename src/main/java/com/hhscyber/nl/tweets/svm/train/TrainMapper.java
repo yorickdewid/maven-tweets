@@ -39,11 +39,14 @@ public class TrainMapper extends Mapper<LongWritable, Text, Text, Text> {
     private HConnection connection;
     private HTableInterface table;
     private Map words;
-    private englishStemmer stemmer;
+    englishStemmer stemmer;
+
+    public TrainMapper() {
+        this.stemmer = new englishStemmer();
+    }
 
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
-        this.stemmer = new englishStemmer();
         connection = HConnectionManager.createConnection(context.getConfiguration());
         table = connection.getTable("hhscyber:svm_featureset");
 
@@ -91,7 +94,7 @@ public class TrainMapper extends Mapper<LongWritable, Text, Text, Text> {
 
         List<Integer> asline = new ArrayList<>();
         asline.addAll(hsline);
-        
+
         Collections.sort(asline);
 
         for (Integer index : asline) {
