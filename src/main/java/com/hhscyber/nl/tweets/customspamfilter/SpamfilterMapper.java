@@ -38,6 +38,8 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
         spamWordsNegative.add("wedding");
         spamWordsNegative.add("bum");
         spamWordsNegative.add("relationship");
+        spamWordsNegative.add("eyes");
+        spamWordsNegative.add("wife");
     }
 
     private static void addPositiveSpamList(Result result) {
