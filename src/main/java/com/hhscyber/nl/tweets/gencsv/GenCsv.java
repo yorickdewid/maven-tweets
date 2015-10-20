@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-    package com.hhscyber.nl.tweets.gencsv;
+package com.hhscyber.nl.tweets.gencsv;
 
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
@@ -16,6 +16,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
@@ -31,21 +34,33 @@ public class GenCsv {
      * @throws java.io.IOException
      */
     public static void main(String[] args) throws IOException, Exception {
-        Conf conf = new Conf(args,"");
+        Conf conf = new Conf(args, "");
         FileSystem hdfs = FileSystem.get(conf);
         conf.set("outputpath", "location");
         Job job = new Job(conf, "GenerateCsv");
         job.setJarByClass(GenCsv.class);
-        String stop = "633224003142950912"; //1000 tweets? add 1 row
+        String stop = "634628247817359360"; //1000 tweets? add 1 row
         Scan scan = new Scan();
         //scan.setStopRow(stop.getBytes());
         job.setSpeculativeExecution(false);
+        FilterList filterList = new FilterList();
+        SingleColumnValueFilter filterCity = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("location"),
+                hbasehelper.HbaseHelper.getPutBytesSafe("city"),
+                CompareFilter.CompareOp.NOT_EQUAL,
+                hbasehelper.HbaseHelper.getPutBytesSafe(""));
+        SingleColumnValueFilter filterKnown = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("location"),
+                hbasehelper.HbaseHelper.getPutBytesSafe("known"),
+                CompareFilter.CompareOp.EQUAL,
+                hbasehelper.HbaseHelper.getPutBytesSafe("true"));
+        filterList.addFilter(filterCity);
+        filterList.addFilter(filterKnown);
+        scan.setFilter(filterList);
 
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, GenCsvMapper.class, ImmutableBytesWritable.class, Result.class, job);
         job.setNumReduceTasks(1);
         job.setOutputFormatClass(NullOutputFormat.class);
         job.setReducerClass(GenCsvReducer.class);
-        
+
         hdfs.delete(new Path("location"), true);
 
         job.waitForCompletion(true);
@@ -59,5 +74,5 @@ public class GenCsv {
         }
         return timestamps.size();
     }
-    
+
 }

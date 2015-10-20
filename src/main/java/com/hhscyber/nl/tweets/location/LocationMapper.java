@@ -75,7 +75,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String coordinates = hbasehelper.HbaseHelper.createStringFromByte(b5);
         if(coordinates.equals("")) //prevent map classcast exception 
         {
-            coordinates = "{\"type\":\"Point\",\"coordinates\":[0,0]}";
+            coordinates = "{\"type\":\"Point\",\"coordinates\":[0.00,0.00]}";
         }
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
@@ -85,7 +85,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         user.put("time_zone",time_zone);
         json.put("user",user);
         json.put("geo",geo);
-        json.put("coordinates",coordinates);
+        json.put("coordinates",new JSONObject().put("", coordinates));
         json.put("entities",entities);
         try {
             return getLocation(json);

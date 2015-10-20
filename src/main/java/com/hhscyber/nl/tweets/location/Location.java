@@ -33,7 +33,7 @@ public class Location {
         String stop = "633223982884327426"; //1000 tweets?
         Scan scan = new Scan();
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets", scan, LocationMapper.class, null, null, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_filtered", scan, LocationMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
         TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", null, job); // if disabled no output folder specfied exception

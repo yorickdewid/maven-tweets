@@ -32,19 +32,28 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
     private static ArrayList<String> getKnownAndUnknownLocations(Result result) {
         //boolean bool_known = hbasehelper.HbaseHelper.createBooleanFromRawHbase(result, "location", "known");
         String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "city");
-        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "county");
+        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "country");
         String category = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "category");
         String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "state");
+        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "county");
         String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "longitude");
         String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "latitude");
+        String created_at = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "created_at_safe");
 
         ArrayList<String> tmp = new ArrayList<>();
         tmp.add(city);
-        tmp.add(county);
-        tmp.add(state);
+        tmp.add(country);
+        if(state.equals(""))
+        {
+           tmp.add(county);
+        }
+        else{
+           tmp.add(state);
+        }
         tmp.add(longitude);
         tmp.add(latitude);
         tmp.add(category);
+        tmp.add(created_at);
         return tmp;
     }
 
@@ -67,6 +76,8 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
                 sb.append("latitude");
                 sb.append(",");
                 sb.append("category");
+                sb.append(",");
+                sb.append("created_at");
                 sb.append("\n");
                 
                 //write data
