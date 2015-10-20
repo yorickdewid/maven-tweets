@@ -46,7 +46,7 @@ public class TestReducer extends TableReducer<ImmutableBytesWritable, Put, Immut
     FileSystem hdfs;
     private HTableInterface table;
     private Map words;
-    SVMPrediect svm;
+    SVMPredict svm;
     englishStemmer stemmer;
 
     public TestReducer() {
@@ -61,8 +61,7 @@ public class TestReducer extends TableReducer<ImmutableBytesWritable, Put, Immut
 
         words = new TreeMap();
         InputStream is = hdfs.open(new Path("trainer.model"));
-        BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-        svm = new SVMPrediect(br);
+        svm = new SVMPredict(is);
 
         Scan scan = new Scan();
         ResultScanner rs = table.getScanner(scan);
@@ -79,22 +78,21 @@ public class TestReducer extends TableReducer<ImmutableBytesWritable, Put, Immut
             List<Cell> cell = put.get(Bytes.toBytes("content"), Bytes.toBytes("text"));
             String data = Bytes.toString(CellUtil.cloneValue(cell.get(0)));
 
-            if (isSpam(data)) {
-                context.write(new ImmutableBytesWritable(Bytes.toBytes("hhscyber:tweets_spam")), put);
-            } else {
+            if (isCorrect(data)) {
                 context.write(new ImmutableBytesWritable(Bytes.toBytes("hhscyber:tweets_filtered")), put);
+            } else {
+                context.write(new ImmutableBytesWritable(Bytes.toBytes("hhscyber:tweets_spam")), put);
             }
         }
 
     }
 
-    private boolean isSpam(String data) throws IOException {
-        System.out.println(data + " -> " + createSVMLine(data));
+    private boolean isCorrect(String data) throws IOException {
         String svmLine = createSVMLine(data);
-        svm.setCurrent(svmLine);
-        svm.predict();
+        boolean isCorrect = svm.predict(svmLine);
 
-        return true;
+        System.out.println(data + " -> " + isCorrect);
+        return isCorrect;
     }
 
     private String createSVMLine(String data) {

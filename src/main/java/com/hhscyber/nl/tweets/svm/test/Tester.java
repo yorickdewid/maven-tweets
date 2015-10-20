@@ -32,8 +32,7 @@ public class Tester {
         job.setJarByClass(Tester.class);
         Scan scan = new Scan();
 
-        //TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_lang", scan, TestMapper.class, ImmutableBytesWritable.class, Put.class, job);
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_test", scan, TestMapper.class, ImmutableBytesWritable.class, Put.class, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_lang", scan, TestMapper.class, ImmutableBytesWritable.class, Put.class, job);
 
         job.setOutputFormatClass(MultiTableOutputFormat.class);
         job.setReducerClass(TestReducer.class);
