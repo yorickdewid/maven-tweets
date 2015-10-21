@@ -20,26 +20,35 @@ public class TextInspectorCompany extends TextInspector {
         }
     }
 
+    @Override
     protected boolean Inspect(String word) {
-        char ch = word.charAt(0); // firs letter
-        int count = 0;
-        int countCaps = 0;
-        if (Character.isUpperCase(ch)) {
-            count++;
-        }
-        char[] chars = new char[word.length()];
-        word.getChars(1, word.length(), chars, 0);
-        for (char character : chars) {
-            if (Character.isUpperCase(character)) {
-                countCaps++;
+        if (word.length() > 0) {
+            char ch = word.charAt(0); // first letter
+            int count = 0;
+            int countCaps = 0;
+            if (Character.isUpperCase(ch)) {
+                count++;
+            }
+            char[] chars = new char[word.length()];
+            word.getChars(1, word.length(), chars, 0);
+            for (int i = 0; i < word.length(); i++) {
+                if (Character.isUpperCase(chars[i])) {
+                    if(i == 0)
+                    {
+                        countCaps++;
+                    }
+                    else if((i % 2) != 0){
+                        countCaps++;
+                    }
+                }
+            }
+            if (count == 1 && countCaps > 0 && countCaps <= 2) {
+                return true; //likely to be company name
+            } else {
+                return false;
             }
         }
-
-        if (count == 1 && countCaps > 0 && countCaps <= 2) {
-            return true; //likely to be company name
-        } else {
-            return false;
-        }
+        return false;
     }
 
 }

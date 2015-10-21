@@ -32,7 +32,7 @@ public class TextInspectorNumbersAndUnit extends TextInspector {
         units.add("people");
         String[] words = explodeText(text);
         for (String word : words) {
-            if(Inspect(word)){
+            if (Inspect(word)) {
                 break;
             }
         }
@@ -40,15 +40,12 @@ public class TextInspectorNumbersAndUnit extends TextInspector {
 
     @Override
     protected boolean Inspect(String word) {
-        if(foundWord != null)
-        {
+        if (foundWord != null) {
             inspectWordLikeUnit(word);
-            if(unit != null)
-            {
+            if (unit != null) {
                 return true;
             }
-        }
-        else{
+        } else {
             inspectNumbersOnly(word);
         }
         return false;
@@ -70,9 +67,26 @@ public class TextInspectorNumbersAndUnit extends TextInspector {
             char[] chars = new char[word.length()];
             word.getChars(0, word.length(), chars, 0);
             int countDigits = 0;
-            for (char c : chars) {
-                if (Character.isDigit(c)) {
-                    countDigits++;
+            int[] indexes = new int[word.length()];
+            boolean firstDigit = false;
+            for (int i = 0; i < word.length(); i++) {
+                if (i == 0) {
+                    if (Character.isDigit(chars[i])) {
+                        indexes[i] = 0;
+                        firstDigit = true;
+                    }
+                }
+                if (firstDigit == true) {
+                    if (Character.isDigit(chars[i])) {
+                        indexes[i] = 1;
+                        if (i != 0) {
+                            if (indexes[i - 1] == 1) { // is the previous a digit?
+                                countDigits++;
+                            }
+                        }
+                    } else {
+                        indexes[i] = 0;
+                    }
                 }
             }
             if (countDigits >= 1) {
@@ -82,6 +96,10 @@ public class TextInspectorNumbersAndUnit extends TextInspector {
             }
         }
         return false;
+    }
+
+    public String getUnit() {
+        return unit;
     }
 
 }

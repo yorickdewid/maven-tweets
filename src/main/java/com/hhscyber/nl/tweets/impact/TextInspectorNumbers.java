@@ -5,6 +5,8 @@
  */
 package com.hhscyber.nl.tweets.impact;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author dev
@@ -14,7 +16,7 @@ public class TextInspectorNumbers extends TextInspector {
     public TextInspectorNumbers(String text) {
         String[] words = explodeText(text);
         for (String word : words) {
-            if(Inspect(word)){
+            if (Inspect(word)) {
                 foundWord = word;
             }
         }
@@ -27,16 +29,35 @@ public class TextInspectorNumbers extends TextInspector {
             word.getChars(0, word.length(), chars, 0);
             int countDigits = 0;
             int countDescriptor = 0;
-            for (char c : chars) {
-                countDescriptor = this.countDescriptor(c);
-                if (Character.isDigit(c)) {
-                    countDigits++;
+            int[] indexes = new int[word.length()];
+            boolean firstDigit = false;
+            for (int i = 0; i < word.length(); i++) {
+                if (i == 0) {
+                    if (Character.isDigit(chars[i])) {
+                        indexes[i] = 0;
+                        firstDigit = true;
+                    }
+                }
+                if (firstDigit == true) {
+                    if (Character.isDigit(chars[i])) {
+                        indexes[i] = 1;
+                        if (i != 0) {
+                            if (indexes[i - 1] == 1) { // is the previous a digit?
+                                countDigits++;
+                            }
+                        }
+                    } else {
+                        indexes[i] = 0;
+                    }
+                }
+                if(i >= 1)
+                {
+                    countDescriptor = countDescriptor(chars[i]);
                 }
             }
             if (countDigits >= 1 && countDescriptor == 1) {
                 return true;
-            }
-            else{
+            } else {
                 return false;
             }
         }

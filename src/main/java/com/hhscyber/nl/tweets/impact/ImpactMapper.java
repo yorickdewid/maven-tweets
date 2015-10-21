@@ -33,6 +33,10 @@ public class ImpactMapper extends TableMapper<ImmutableBytesWritable, Put> {
         TextInspectorCompany company = new TextInspectorCompany(words);
         TextInspectorNumbers numbers = new TextInspectorNumbers(words);
         TextInspectorNumbersAndUnit numbersUnit = new TextInspectorNumbersAndUnit(words);
+        if(company.getFoundWord() != null &&  numbers.getFoundWord() != null)
+        {
+            System.out.println("Company: "+company.getFoundWord() + " numbers: "+ numbers.getFoundWord() +" number and unit : "+numbersUnit.getFoundWord() + " " + numbersUnit.getUnit());
+        }
     }
 
 
