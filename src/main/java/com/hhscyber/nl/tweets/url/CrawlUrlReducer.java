@@ -87,6 +87,10 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
     }
 
     private static String inspectUrl(String url) {
+        if(url.isEmpty())
+        {
+            return null;
+        }
         if (url.contains("http://") || url.contains("https")) {
             return url;
         } else {
