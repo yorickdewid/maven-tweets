@@ -14,6 +14,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import static hbasehelper.HbaseHelper.getPutBytesSafe;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -26,20 +28,24 @@ import static hbasehelper.HbaseHelper.getPutBytesSafe;
  */
 public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result, Put> {
 
+    Collection<String> urlsVisited = new ArrayList<>();
+
     @Override
     protected void reduce(ImmutableBytesWritable key, Iterable<Result> values, Context context) throws IOException, InterruptedException {
-         String url = null;
-         String build = null;
-         Put put = null;
+        String url = null;
+        String build = null;
+        Put put = null;
         for (Result result : values) {
             url = getUrlFromUrls(result);
             if (!url.equals("")) {
-                build = getUrlContent(url);
-                if(!build.isEmpty())
-                {
-                    put = new Put(result.getRow());
-                    put.add(getPutBytesSafe("content"), getPutBytesSafe("title"), getPutBytesSafe(build));
-                    context.write(null, put);
+                if (!urlsVisited.contains(url)) {
+                    urlsVisited.add(url);
+                    build = getUrlContent(url);
+                    if (!build.isEmpty()) {
+                        put = new Put(result.getRow());
+                        put.add(getPutBytesSafe("content"), getPutBytesSafe("title"), getPutBytesSafe(build));
+                        context.write(null, put);
+                    }
                 }
             }
         }
@@ -65,7 +71,6 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
                     return "";
                 }
             }
-
         } catch (IOException ex) {
             Logger.getLogger(test.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -75,9 +80,11 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
     private static Elements getElementsFromHtml(String url) {
         try {
             url = inspectUrl(url);
-            Document doc = Jsoup.connect(url).get();
-            Elements els = doc.getAllElements();
-            return els;
+            if (url != null) {
+                Document doc = Jsoup.connect(url).get();
+                Elements els = doc.getAllElements();
+                return els;
+            }
         } catch (HttpStatusException ex) {
             System.out.println("Skip because Http error code: " + ex.getStatusCode());
         } catch (IOException ex) {
@@ -87,8 +94,7 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
     }
 
     private static String inspectUrl(String url) {
-        if(url.isEmpty())
-        {
+        if (url.isEmpty()) {
             return null;
         }
         if (url.contains("http://") || url.contains("https")) {
@@ -109,19 +115,11 @@ public class CrawlUrlReducer extends TableReducer<ImmutableBytesWritable, Result
                     if (text.toLowerCase().contains("moved") && text.toLowerCase().contains("permanently")) {
                         moved = true;
                     }
-//                    if(text.isEmpty())
-//                    {
-//                        h1 = true;
-//                    }
                     break;
                 case "body":
                     if (moved) {
                         url = getMovedUrl(el);
                     }
-//                    if(h1)
-//                    {
-//                        text = el.getAllElements();
-//                    }
                     break;
                 default:
                     break;

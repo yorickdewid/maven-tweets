@@ -30,12 +30,11 @@ public class ImpactMapper extends TableMapper<ImmutableBytesWritable, Put> {
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
         String words = HbaseHelper.createStringFromRawHbase(value, "content", "text");
 
-        TextInspectorCompany company = new TextInspectorCompany(words);
         TextInspectorNumbers numbers = new TextInspectorNumbers(words);
         TextInspectorNumbersAndUnit numbersUnit = new TextInspectorNumbersAndUnit(words);
-        if(company.getFoundWord() != null &&  numbers.getFoundWord() != null)
+        if(numbers.getFoundWord() != null)
         {
-            System.out.println("Company: "+company.getFoundWord() + " numbers: "+ numbers.getFoundWord() +" number and unit : "+numbersUnit.getFoundWord() + " " + numbersUnit.getUnit());
+            System.out.println("Number: " +numbers.getFoundWord() +" number and unit : "+numbersUnit.getFoundWord() + " " + numbersUnit.getUnit() + "    TEXT: "+words);
         }
     }
 
