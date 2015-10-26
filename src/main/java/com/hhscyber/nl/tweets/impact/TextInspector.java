@@ -43,19 +43,22 @@ public abstract class TextInspector {
         if (s.contains(":")) {
             return false;
         }
-        for(String negative : spamWordsNegative)
-        {
-            if(s.toLowerCase().contentEquals(negative))
-            {
-                return false;
-            }
-        }
+//        for(String negative : spamWordsNegative)
+//        {
+//            if(s.toLowerCase().contentEquals(negative))
+//            {
+//                return false;
+//            }
+//        }
         return true;
     }
     
     private static ArrayList<String> spamWordsNegative = new ArrayList<>();
 
 
+    /**
+     * EXTREMLY SLOW
+     */
     private static void addNegativeSpamList() {
         spamWordsNegative.add("xxx");
         spamWordsNegative.add("porn");

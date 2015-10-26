@@ -13,7 +13,9 @@ import java.io.IOException;
 import java.util.HashSet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
 
 /**
@@ -32,11 +34,11 @@ public class Impact {
         job.setJarByClass(Impact.class);
         String stop = "633223982884327426"; //1000 tweets?
         Scan scan = new Scan();
+        job.setSpeculativeExecution(false);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_filtered", scan, ImpactMapper.class, ImmutableBytesWritable.class, Result.class, job);
+        job.setNumReduceTasks(1);
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_filtered", scan, ImpactMapper.class, null, null, job);
-        job.setNumReduceTasks(0);
-
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", null, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_impact_test", ImpactReducer.class, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }

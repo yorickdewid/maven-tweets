@@ -5,8 +5,6 @@
  */
 package com.hhscyber.nl.tweets.impact;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author dev

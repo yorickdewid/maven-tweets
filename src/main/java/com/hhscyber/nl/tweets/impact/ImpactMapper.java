@@ -19,22 +19,26 @@ import org.apache.hadoop.mapreduce.Mapper;
  */
 public class ImpactMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
+
+    //TODO
+    // SPLIT INTO TWO REDUCERS EN OR NL
+    // THEN DO THE 3 options and save to
+    // impact:company
+    // impact:number
+    // impact:number_unit
     
-
-    @Override
-    protected void setup(Context context) throws IOException, InterruptedException {
-        super.setup(context); //To change body of generated methods, choose Tools | Templates.
-    }
-
     @Override
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
-        String words = HbaseHelper.createStringFromRawHbase(value, "content", "text");
-
-        TextInspectorNumbers numbers = new TextInspectorNumbers(words);
-        TextInspectorNumbersAndUnit numbersUnit = new TextInspectorNumbersAndUnit(words);
-        if(numbers.getFoundWord() != null)
+        String content_lang = HbaseHelper.createStringFromRawHbase(value, "content", "lang");
+        String profile_lang = HbaseHelper.createStringFromRawHbase(value, "profile", "lang");
+        
+        if(content_lang.toLowerCase().contains("en") || profile_lang.toLowerCase().contains("en"))
         {
-            System.out.println("Number: " +numbers.getFoundWord() +" number and unit : "+numbersUnit.getFoundWord() + " " + numbersUnit.getUnit() + "    TEXT: "+words);
+            context.write(new ImmutableBytesWritable("en".getBytes()),value);
+        }
+        else if(content_lang.toLowerCase().contains("nl") || profile_lang.toLowerCase().contains("nl"))
+        {
+            context.write(new ImmutableBytesWritable("nl".getBytes()),value);
         }
     }
 
