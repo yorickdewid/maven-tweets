@@ -32,14 +32,14 @@ public class ImpactMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String content_lang = HbaseHelper.createStringFromRawHbase(value, "content", "lang");
         String profile_lang = HbaseHelper.createStringFromRawHbase(value, "profile", "lang");
         
-        if(content_lang.toLowerCase().contains("en") || profile_lang.toLowerCase().contains("en"))
-        {
+//        if(content_lang.toLowerCase().contains("en") || profile_lang.toLowerCase().contains("en"))
+//        {
             context.write(new ImmutableBytesWritable("en".getBytes()),value);
-        }
-        else if(content_lang.toLowerCase().contains("nl") || profile_lang.toLowerCase().contains("nl"))
-        {
-            context.write(new ImmutableBytesWritable("nl".getBytes()),value);
-        }
+//        }
+//        else if(content_lang.toLowerCase().contains("nl") || profile_lang.toLowerCase().contains("nl"))
+//        {
+//            context.write(new ImmutableBytesWritable("nl".getBytes()),value);
+//        }
     }
 
 

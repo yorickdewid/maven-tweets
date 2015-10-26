@@ -1,6 +1,5 @@
 package com.hhscyber.nl.tweets.impact;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,43 +25,31 @@ import opennlp.tools.util.Span;
  */
 public class TextInspectorCompany {
 
-    public InputStream modelIn = null;
-    public InputStream modelIn2 = null;
-    public InputStream modelIn3 = null;
+    public SentenceModel sentenceModel = null;
+    public TokenizerModel tokenizerModel = null;
+    public TokenNameFinderModel modelToken = null;
 
     public String[] Inspect(String text) {
-        try {
-
-            TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
-            NameFinderME nameFinder = new NameFinderME(model);
-
-            TokenizerModel model2 = new TokenizerModel(modelIn2);
-            Tokenizer tokenizer = new TokenizerME(model2);
-
-            SentenceModel model3 = new SentenceModel(modelIn3);
-            SentenceDetectorME sentenceDetector = new SentenceDetectorME(model3);
-
-            String sentences[] = sentenceDetector.sentDetect(text);
-            ArrayList<String[]> tmp = new ArrayList<>();
-            for (String sentence : sentences) {
-                String tokens[] = tokenizer.tokenize(sentence);
-                Span nameSpans[] = nameFinder.find(tokens);
-                String[] arFound = Span.spansToStrings(nameSpans, tokens);
-                tmp.add(arFound);
-            }
-            String[] arFound = null;
-            for (String[] s : tmp) {
-                if (arFound == null) {
-                    arFound = s;
-                } else {
-                    arFound = concat(arFound, s);
-                }
-            }
-            return arFound;
-        } catch (IOException ex) {
-            Logger.getLogger(TextInspectorCompany.class.getName()).log(Level.SEVERE, null, ex);
+        NameFinderME nameFinder = new NameFinderME(modelToken);
+        Tokenizer tokenizer = new TokenizerME(tokenizerModel);
+        SentenceDetectorME sentenceDetector = new SentenceDetectorME(sentenceModel);
+        String sentences[] = sentenceDetector.sentDetect(text);
+        ArrayList<String[]> tmp = new ArrayList<>();
+        for (String sentence : sentences) {
+            String tokens[] = tokenizer.tokenize(sentence);
+            Span nameSpans[] = nameFinder.find(tokens);
+            String[] arFound = Span.spansToStrings(nameSpans, tokens);
+            tmp.add(arFound);
         }
-        return null;
+        String[] arFound = null;
+        for (String[] s : tmp) {
+            if (arFound == null) {
+                arFound = s;
+            } else {
+                arFound = concat(arFound, s);
+            }
+        }
+        return arFound;
     }
 
     public String[] concat(String[] a, String[] b) {
