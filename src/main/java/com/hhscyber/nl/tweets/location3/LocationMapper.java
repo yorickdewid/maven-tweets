@@ -3,14 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.hhscyber.nl.tweets.location2;
+package com.hhscyber.nl.tweets.location3;
 
+import com.hhscyber.nl.tweets.location.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hhscyber.nl.carmen.LocationResolver;
 import com.hhscyber.nl.carmen.types.Location;
-import com.javadocmd.simplelatlng.LatLng;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -35,8 +34,8 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
     @Override
     public void map(ImmutableBytesWritable row, Result value, Mapper.Context context) throws IOException, InterruptedException {
-        Location location = buildJSONLocation(row, value);
-        Put p = resultToPut(row, value, location);
+        Location locationOrigin = buildJSONLocationOrigin(value);
+        Put p = resultToPut(row, value,locationOrigin);
         if (p != null) {
             context.write(row, p);
         }
@@ -48,7 +47,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
      * @param key
      * @param result
      */
-    private static Location buildJSONLocation(ImmutableBytesWritable key, Result result) {
+    private static Location buildJSONLocation(Result result) {
         byte[] b = hbasehelper.HbaseHelper.getValueSafe(result, "profile", "utc_offset");
         byte[] b2 = hbasehelper.HbaseHelper.getValueSafe(result, "profile", "location");
         byte[] b3 = hbasehelper.HbaseHelper.getValueSafe(result, "content", "geo");
@@ -70,7 +69,7 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         String coordinates = hbasehelper.HbaseHelper.createStringFromByte(b5);
         if (coordinates.equals("")) //prevent map classcast exception 
         {
-            coordinates = "{\"type\":\"Point\",\"coordinates\":[0,0]}";
+            coordinates = "{\"type\":\"Point\",\"coordinates\":[0.00,0.00]}";
         }
         JSONObject user = new JSONObject();
         JSONObject entities = new JSONObject();
@@ -80,8 +79,23 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         user.put("time_zone", time_zone);
         json.put("user", user);
         json.put("geo", geo);
-        json.put("coordinates", coordinates);
+        json.put("coordinates", new JSONObject().put("", coordinates));
         json.put("entities", entities);
+        try {
+            return getLocation(json);
+        } catch (IOException ex) {
+            Logger.getLogger(LocationMapper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+
+    private static Location buildJSONLocationOrigin(Result result) {
+        byte[] b = hbasehelper.HbaseHelper.getValueSafe(result, "content", "text");
+        JSONObject json = new JSONObject();
+        String location = hbasehelper.HbaseHelper.createStringFromByte(b);
+        JSONObject user = new JSONObject();
+        user.put("location", location);
+        json.put("user", user);
         try {
             return getLocation(json);
         } catch (IOException ex) {
@@ -100,63 +114,20 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         HashMap<String, Object> tweet = (HashMap<String, Object>) mapper.readValue(json.toString(), Map.class);
 
         total++;
-        ArrayList<Location> locations = resolver.resolveLocationFromTweetCombineAll(tweet);
-        Double[][][] geo = new Double[locations.size()][1][2];
-        ArrayList<String> cities = new ArrayList<>();
-        ArrayList<String> counties = new ArrayList<>();
-        ArrayList<String> countries = new ArrayList<>();
-        ArrayList<String> states = new ArrayList<>();
-        ArrayList<Boolean> known = new ArrayList<>();
-        if (locations.size() >= 1) {
-            for (int i = 0; i < locations.size(); i++) {
-                //System.out.println("Found location: " + location.toString());
-                Location location = locations.get(i);
-                LatLng tmp = location.getLatLng();
-                geo[i][0][0] = tmp.getLatitude();
-                geo[i][0][1] = tmp.getLongitude();
-                cities.add(location.getCity());
-                counties.add(location.getCounty());
-                countries.add(location.getCountry());
-                states.add(location.getState());
-                known.add(location.isKnownLocation());
+        Location location = resolver.resolveLocationFromTweet(tweet);
+
+        if (location != null) {
+
+            //System.out.println("Found location: " + location.toString());
+            if (location.getCountry() != null && location.getCity() != null) {
+                numResolved++;
             }
+            return location;
         }
-        LocationObject location = new LocationObject();
-        location.setGeo(geo);
-        location.setCities(cities);
-        location.setCounties(counties);
-        location.setCountries(countries);
-        location.setStates(states);
-        location.setKnown(known);
-        identifyMostAccurate(location);
         return null;
         //System.out.println("Resolved locations for " + numResolved + " of " + total + " tweets.");
     }
 
-    private static Location identifyMostAccurate(LocationObject location) {
-        int countPoint = 0;
-        for(boolean known : location.getKnown())
-        {
-            if(known)
-                countPoint++;
-        }
-        countPoint += countPointsForNotEmpty(location.getCities());
-        countPoint += countPointsForNotEmpty(location.getCounties());
-        countPoint += countPointsForNotEmpty(location.getCountries());
-        countPoint += countPointsForNotEmpty(location.getStates());
-        return null;
-    }
-
-    private static int countPointsForNotEmpty(ArrayList<String> generics){
-        int countPoints = 0;
-        for(String generic : generics)
-        {
-            if(!generic.equalsIgnoreCase(""))
-                countPoints++;
-        }
-        return countPoints;
-    }
-    
     private static Put resultToPut(ImmutableBytesWritable key, Result result, Location location) throws IOException {
         Put put = new Put(key.get());
         //city
@@ -167,13 +138,15 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
         for (Cell c : result.rawCells()) {
             put.add(c);
         }
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("city"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCity()));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
-        put.add(Bytes.toBytes("location"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
+        if (location != null) {
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("city"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCity()));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
+            put.add(Bytes.toBytes("location_origin"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
+        }
         return put;
 
     }
