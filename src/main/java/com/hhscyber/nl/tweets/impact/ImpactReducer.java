@@ -80,13 +80,13 @@ public class ImpactReducer extends TableReducer<ImmutableBytesWritable, Result, 
         TextInspectorNumbers numbers = new TextInspectorNumbers(words);
         TextInspectorNumbersAndUnit numbersUnit = new TextInspectorNumbersAndUnit(words);
         if (numbers.foundWord != null || numbersUnit.foundWord != null) {
-            put.add(Bytes.toBytes("impact"), Bytes.toBytes("number"), hbasehelper.HbaseHelper.getPutBytesSafe(numbers.foundWord));
-            put.add(Bytes.toBytes("impact"), Bytes.toBytes("number_unit"), hbasehelper.HbaseHelper.getPutBytesSafe(numbersUnit.foundWord + ", " + numbersUnit.getUnit()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("impact_number"), hbasehelper.HbaseHelper.getPutBytesSafe(numbers.foundWord));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("impact_number_unit"), hbasehelper.HbaseHelper.getPutBytesSafe(numbersUnit.foundWord + ", " + numbersUnit.getUnit()));
             if (foundCompanies != null) {
                 if (foundCompanies.length == 1) {
-                    put.add(Bytes.toBytes("impact"), Bytes.toBytes("company"), hbasehelper.HbaseHelper.getPutBytesSafe(foundCompanies[0]));
+                    put.add(Bytes.toBytes("content"), Bytes.toBytes("impact_company"), hbasehelper.HbaseHelper.getPutBytesSafe(foundCompanies[0]));
                 } else {
-                    put.add(Bytes.toBytes("impact"), Bytes.toBytes("companies"), hbasehelper.HbaseHelper.getPutBytesSafe(Arrays.toString(foundCompanies)));
+                    put.add(Bytes.toBytes("content"), Bytes.toBytes("impact_companies"), hbasehelper.HbaseHelper.getPutBytesSafe(Arrays.toString(foundCompanies)));
                 }
             }
             return put;

@@ -36,9 +36,9 @@ public class Impact {
         Scan scan = new Scan();
         job.setSpeculativeExecution(false);
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_filtered", scan, ImpactMapper.class, ImmutableBytesWritable.class, Result.class, job);
-        job.setNumReduceTasks(1);
+        job.setNumReduceTasks(10);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_impact_test", ImpactReducer.class, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_final", ImpactReducer.class, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }

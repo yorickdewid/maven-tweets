@@ -31,13 +31,13 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
      */
     private static ArrayList<String> getKnownAndUnknownLocations(Result result) {
         //boolean bool_known = hbasehelper.HbaseHelper.createBooleanFromRawHbase(result, "location", "known");
-        String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "city");
-        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "country");
+        String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_city");
+        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_country");
         String category = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "category");
-        String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "state");
-        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "county");
-        String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "longitude");
-        String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "latitude");
+        String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_state");
+        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_county");
+        String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_longitude");
+        String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_latitude");
         String created_at = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "created_at_safe");
 
         ArrayList<String> tmp = new ArrayList<>();

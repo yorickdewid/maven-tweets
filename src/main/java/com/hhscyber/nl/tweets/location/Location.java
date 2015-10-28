@@ -36,7 +36,7 @@ public class Location {
         TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_filtered", scan, LocationMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", null, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_final", null, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }

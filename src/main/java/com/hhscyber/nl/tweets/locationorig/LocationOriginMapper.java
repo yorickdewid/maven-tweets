@@ -40,7 +40,7 @@ public class LocationOriginMapper extends TableMapper<ImmutableBytesWritable, Pu
          Current count: 475272, row: 650036291338379264                                                                                                                                                                                                
          Current count: 534681, row: 651641578088435712
          */
-        int reducer = 1 ;
+        int reducer = 0 ;
         if (rowkey <= 635632397812297728l) {
             reducer = 1;
         } else if (rowkey >= 635632397812297728l && rowkey <= 637482098564141056l) {

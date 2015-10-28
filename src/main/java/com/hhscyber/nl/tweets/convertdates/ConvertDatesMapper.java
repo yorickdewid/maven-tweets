@@ -13,7 +13,6 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -37,9 +36,6 @@ public class ConvertDatesMapper extends TableMapper<ImmutableBytesWritable, Put>
 
     private static Put resultToPut(ImmutableBytesWritable key, Result result) throws IOException {
         Put put = new Put(key.get());
-        for (Cell c : result.rawCells()) {
-            put.add(c);
-        }
         byte[] b1 = hbasehelper.HbaseHelper.getValueSafe(result, "profile", "created_at");
         byte[] b2 = hbasehelper.HbaseHelper.getValueSafe(result, "content", "created_at");
         String profileCreatedAt = hbasehelper.HbaseHelper.createStringFromByte(b1);

@@ -32,10 +32,10 @@ public class ConvertDates {
 
         Scan scan = new Scan();
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, ConvertDatesMapper.class, null, null, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_final", scan, ConvertDatesMapper.class, null, null, job);
         job.setNumReduceTasks(0);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", null, job);
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_final", null, job);
 
         job.waitForCompletion(true);
     }

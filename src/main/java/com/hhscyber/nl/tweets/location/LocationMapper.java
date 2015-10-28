@@ -131,13 +131,13 @@ public class LocationMapper extends TableMapper<ImmutableBytesWritable, Put> {
             for (Cell c : result.rawCells()) {
                 put.add(c);
             }
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("city"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCity()));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
-            put.add(Bytes.toBytes("location"), Bytes.toBytes("known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_city"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCity()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_county"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCounty()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_state"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getState()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_country"), hbasehelper.HbaseHelper.getPutBytesSafe(location.getCountry()));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_latitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLatitude())));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_longitude"), hbasehelper.HbaseHelper.getPutBytesSafe(String.valueOf(location.getLatLng().getLongitude())));
+            put.add(Bytes.toBytes("content"), Bytes.toBytes("location_known"), hbasehelper.HbaseHelper.getPutBytesSafe(location.isKnownLocation()));
             return put;
 
     }
