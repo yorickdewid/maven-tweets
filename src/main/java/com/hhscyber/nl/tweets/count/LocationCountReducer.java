@@ -1,5 +1,7 @@
-package com.hhscyber.nl.tweets.locationcount;
+package com.hhscyber.nl.tweets.count;
 
+import com.hhscyber.nl.tweets.locationcount.*;
+import java.awt.Image;
 import java.io.IOException;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -17,7 +19,7 @@ import org.apache.hadoop.hbase.mapreduce.TableReducer;
  */
 public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, Result, Put> {
 
-    public static countObject count = new countObject();
+    public static countObjectLocation count = new countObjectLocation();
 
     @Override
     protected void reduce(ImmutableBytesWritable key, Iterable<Result> values, Context context) throws IOException, InterruptedException {
@@ -32,13 +34,13 @@ public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, R
      * @param result
      */
     private static void getKnownAndUnknownLocations(Result result) {
-        boolean bool_known = hbasehelper.HbaseHelper.createBooleanFromRawHbase(result, "content", "location_known");
-        String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_city");
-        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_county");
-        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_country");
-        String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_state");
-        String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_longitude");
-        String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "content", "location_latitude");
+        boolean bool_known = hbasehelper.HbaseHelper.createBooleanFromRawHbase(result, "location", "known");
+        String city = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "city");
+        String county = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "county");
+        String country = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "country");
+        String state = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "state");
+        String longitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "longitude");
+        String latitude = hbasehelper.HbaseHelper.createStringFromRawHbase(result, "location", "latitude");
         count.totalLocations++;
         if (bool_known) {
             count.knownLocations++;
@@ -57,7 +59,7 @@ public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, R
         if (!state.equals("")) {
             count.amountOfState++;
         }
-        if (!longitude.equals("0.0") && !latitude.equals("0.0")) {
+        if (!longitude.equals("") && !latitude.equals("")) {
             count.amountOfGeo++;
         }
 

@@ -3,8 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-    package com.hhscyber.nl.tweets.locationcount;
+    package com.hhscyber.nl.tweets.count;
 
+import com.hhscyber.nl.tweets.locationcount.*;
 import io.github.htools.hadoop.Conf;
 import io.github.htools.hadoop.Job;
 import io.github.htools.io.DirComponent;
@@ -36,10 +37,10 @@ public class LocationCount {
         Scan scan = new Scan();
         //scan.setStopRow(stop.getBytes());
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_final", scan, LocationCountMapper.class, ImmutableBytesWritable.class, Result.class, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, LocationCountMapper.class, ImmutableBytesWritable.class, Result.class, job);
         job.setNumReduceTasks(1);
 
-        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_final", LocationCountReducer.class, job); // if disabled no output folder specfied exception
+        TableMapReduceUtil.initTableReducerJob("hhscyber:tweets_location_test", LocationCountReducer.class, job); // if disabled no output folder specfied exception
 
         job.waitForCompletion(true);
     }

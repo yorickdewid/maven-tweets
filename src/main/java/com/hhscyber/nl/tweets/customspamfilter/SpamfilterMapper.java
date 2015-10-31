@@ -40,6 +40,7 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
         spamWordsNegative.add("relationship");
         spamWordsNegative.add("eyes");
         spamWordsNegative.add("wife");
+        spamWordsNegative.add("children");
     }
 
     private static void addPositiveSpamList(Result result) {
@@ -98,7 +99,6 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
         String row = hbasehelper.HbaseHelper.createStringFromByte(result.getRow());
         countSpam += filterText(text, countSpam);
-        countSpam += checkNumberAffected(text, countSpam);
 
         if (countSpam >= 10) {
             System.out.println(row + " Good");
@@ -134,20 +134,5 @@ public class SpamfilterMapper extends TableMapper<ImmutableBytesWritable, Put> {
 
         return countPoints;
     }
-
-    private static int checkNumberAffected(String text, int countSpam) {
-        int countPoints = countSpam;
-        int[] numbers = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-        for (int n : numbers) {
-            if (text.contains(Integer.toString(n))) {
-                countPoints += 1;
-            }
-            if (text.contains("millions") || text.contains("thousands") || text.contains("hundreds")) {
-                countPoints += 2;
-            }
-        }
-        return countPoints;
-    }
-
 
 }
