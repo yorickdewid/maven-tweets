@@ -63,10 +63,6 @@
                 <configuration>
                     <target>  
                         <echo message="uploading ${project.build.directory}/${project.build.finalName}.jar" />
-                        <scp todir="hhscyber:Info2015@login.hathi.surfsara.nl:jars" 
-                             trust="true" failonerror="false"
-                             file="${project.build.directory}/${project.build.finalName}.jar">
-                        </scp>
                     </target>
                 </configuration>
                 <dependencies>
