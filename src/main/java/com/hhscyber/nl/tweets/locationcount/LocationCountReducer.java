@@ -1,6 +1,7 @@
 package com.hhscyber.nl.tweets.locationcount;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
@@ -18,6 +19,7 @@ import org.apache.hadoop.hbase.mapreduce.TableReducer;
 public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, Result, Put> {
 
     public static countObject count = new countObject();
+    public static ArrayList<countryObject> countries = new ArrayList<>();
 
     @Override
     protected void reduce(ImmutableBytesWritable key, Iterable<Result> values, Context context) throws IOException, InterruptedException {
@@ -52,6 +54,20 @@ public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, R
             count.amountOfCounties++;
         }
         if (!country.equals("")) {
+            int index = -1;
+            for (countryObject countryObj : countries) {
+                if (countryObj.countryName.toLowerCase().equals(country.toLowerCase())) {
+                    index = countries.indexOf(countryObj);
+                }
+            }
+            if (index != -1) {
+                countries.get(index).count++;
+            } else {
+                countryObject tmpobj = new countryObject();
+                tmpobj.countryName = country;
+                tmpobj.count++;
+                countries.add(tmpobj);
+            }
             count.amountOfCountries++;
         }
         if (!state.equals("")) {
@@ -66,8 +82,11 @@ public class LocationCountReducer extends TableReducer<ImmutableBytesWritable, R
     @Override
     protected void cleanup(Context context) throws IOException, InterruptedException {
         System.out.println(count.toString());
-        System.out.println("Percentage of known locations:" + (((double)count.knownLocations / (double)count.totalLocations) * 100.00));
+        System.out.println("Percentage of known locations:" + (((double) count.knownLocations / (double) count.totalLocations) * 100.00));
         System.out.println(count.getOptionalFields());
+        for (countryObject obj : countries) {
+            System.out.println("Country : " + obj.countryName + " , " + obj.count);
+        }
         super.cleanup(context); //To change body of generated methods, choose Tools | Templates.
     }
 

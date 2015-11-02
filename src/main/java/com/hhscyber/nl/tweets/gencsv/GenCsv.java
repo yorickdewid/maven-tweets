@@ -44,19 +44,19 @@ public class GenCsv {
         //scan.setStopRow(stop.getBytes());
         job.setSpeculativeExecution(false);
         FilterList filterList = new FilterList();
-        SingleColumnValueFilter filterCity = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("location"),
-                hbasehelper.HbaseHelper.getPutBytesSafe("city"),
+        SingleColumnValueFilter filterCity = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("content"),
+                hbasehelper.HbaseHelper.getPutBytesSafe("location_city"),
                 CompareFilter.CompareOp.NOT_EQUAL,
                 hbasehelper.HbaseHelper.getPutBytesSafe(""));
-        SingleColumnValueFilter filterKnown = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("location"),
-                hbasehelper.HbaseHelper.getPutBytesSafe("known"),
+        SingleColumnValueFilter filterKnown = new SingleColumnValueFilter(hbasehelper.HbaseHelper.getPutBytesSafe("content"),
+                hbasehelper.HbaseHelper.getPutBytesSafe("location_known"),
                 CompareFilter.CompareOp.EQUAL,
                 hbasehelper.HbaseHelper.getPutBytesSafe("true"));
         filterList.addFilter(filterCity);
         filterList.addFilter(filterKnown);
         scan.setFilter(filterList);
 
-        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_location_test", scan, GenCsvMapper.class, ImmutableBytesWritable.class, Result.class, job);
+        TableMapReduceUtil.initTableMapperJob("hhscyber:tweets_final", scan, GenCsvMapper.class, ImmutableBytesWritable.class, Result.class, job);
         job.setNumReduceTasks(1);
         job.setOutputFormatClass(NullOutputFormat.class);
         job.setReducerClass(GenCsvReducer.class);

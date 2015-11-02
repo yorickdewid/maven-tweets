@@ -43,12 +43,10 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
         ArrayList<String> tmp = new ArrayList<>();
         tmp.add(city);
         tmp.add(country);
-        if(state.equals(""))
-        {
-           tmp.add(county);
-        }
-        else{
-           tmp.add(state);
+        if (state.equals("")) {
+            tmp.add(county);
+        } else {
+            tmp.add(state);
         }
         tmp.add(longitude);
         tmp.add(latitude);
@@ -79,16 +77,16 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
                 sb.append(",");
                 sb.append("created_at");
                 sb.append("\n");
-                
+
                 //write data
                 for (Result value : values) {
+                    String text = hbasehelper.HbaseHelper.createStringFromRawHbase(value, "content", "text");
+                    String verified = hbasehelper.HbaseHelper.createStringFromRawHbase(value, "profile", "verified");
                     ArrayList<String> locations = getKnownAndUnknownLocations(value);
                     for (String location : locations) {
-                        if(location.equals("null"))
-                        {
+                        if (location.equals("null")) {
                             sb.append("");
-                        }
-                        else{
+                        } else {
                             sb.append(location);
                         }
                         sb.append(",");
@@ -100,7 +98,7 @@ public class GenCsvReducer extends Reducer<ImmutableBytesWritable, Result, NullW
                 try (FSDataOutputStream fsOutStream = hdfs.create(newFilePath)) {
                     fsOutStream.write(byt);
                 }
-                  // nooit zomaar vage exceptions afvangen, bovenstaande gooit nooit een
+                // nooit zomaar vage exceptions afvangen, bovenstaande gooit nooit een
                 // exception, en bij outofmemory krijg je toch wel een stacktrace
             } catch (Exception ex) {
                 Logger.getLogger(GenCsvReducer.class.getName()).log(Level.SEVERE, null, ex);
